@@ -186,7 +186,6 @@ const _pushToProvider = async (
             accountId,
         },
         json: data,
-        responseType: "json",
         hooks: {
             beforeRequest: [
                 (options) => {
