@@ -22,7 +22,7 @@ export default [
         },
     },
 
-    eslintPluginUnicorn.configs["flat/recommended"],
+    eslintPluginUnicorn.configs["recommended"],
     eslintPluginPrettier,
     {
         plugins: {
