@@ -11,6 +11,8 @@ import { getPayloadFromToken } from "./utils/get-payload-from-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import { ContractDetails } from "./types/common";
 import { formatToken } from "./utils/format-token";
+import { parseWithSchema } from "./utils/parse-with-schema";
+import { UserAuthorizationPayload } from "./exchange-code-for-token";
 
 export interface RefreshTokenOptions {
     contractDetails: ContractDetails;
@@ -53,7 +55,8 @@ const refreshToken = async (options: RefreshTokenOptions, sdkConfig: SDKConfigur
         });
 
         const payload = await getPayloadFromToken(get(response.body, "token"), sdkConfig);
-        return formatToken(payload);
+        const parsedPayload = parseWithSchema(UserAuthorizationPayload, payload);
+        return formatToken(parsedPayload);
     } catch (error) {
         handleServerResponse(error);
         throw error;

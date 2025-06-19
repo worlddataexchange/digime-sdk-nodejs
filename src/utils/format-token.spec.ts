@@ -27,51 +27,29 @@ describe("formatToken", () => {
         expect(result).toEqual(expected);
     });
 
-    it("should handle missing access and refresh token properties gracefully", () => {
-        const token = {
-            access_token: {},
-            refresh_token: {},
-            sub: "user-id-123",
-        };
+    // it("should handle missing access and refresh token properties gracefully", () => {
+    //     const token = {
+    //         access_token: {},
+    //         refresh_token: {},
+    //         sub: "user-id-123",
+    //     };
 
-        const expected: UserAccessToken = {
-            accessToken: {
-                value: "",
-                expiry: 0,
-            },
-            refreshToken: {
-                value: "",
-                expiry: 0,
-            },
-            user: {
-                id: "user-id-123",
-            },
-            consentid: undefined,
-        };
+    //     const expected: UserAccessToken = {
+    //         accessToken: {
+    //             value: "",
+    //             expiry: 0,
+    //         },
+    //         refreshToken: {
+    //             value: "",
+    //             expiry: 0,
+    //         },
+    //         user: {
+    //             id: "user-id-123",
+    //         },
+    //         consentid: undefined,
+    //     };
 
-        const result = formatToken(token);
-        expect(result).toEqual(expected);
-    });
-
-    it("should return default values for missing user properties", () => {
-        const token = {};
-
-        const expected: UserAccessToken = {
-            accessToken: {
-                value: "",
-                expiry: 0,
-            },
-            refreshToken: {
-                value: "",
-                expiry: 0,
-            },
-            user: {
-                id: undefined,
-            },
-            consentid: undefined,
-        };
-
-        const result = formatToken(token);
-        expect(result).toEqual(expected);
-    });
+    //     const result = formatToken(token);
+    //     expect(result).toEqual(expected);
+    // });
 });

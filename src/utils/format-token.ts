@@ -2,23 +2,23 @@
  * © World Data Exchange. All rights reserved.
  */
 
-import get from "lodash.get";
 import { UserAccessToken } from "../types/user-access-token";
+import { UserAuthorizationPayload } from "../exchange-code-for-token";
 
-const formatToken = (token: unknown): UserAccessToken => {
+const formatToken = (token: UserAuthorizationPayload): UserAccessToken => {
     return {
         accessToken: {
-            value: get(token, ["access_token", "value"], ""),
-            expiry: get(token, ["access_token", "expires_on"], 0),
+            value: token.access_token.value,
+            expiry: token.access_token.expires_on,
         },
         refreshToken: {
-            value: get(token, ["refresh_token", "value"], ""),
-            expiry: get(token, ["refresh_token", "expires_on"], 0),
+            value: token.refresh_token.value,
+            expiry: token.refresh_token.expires_on,
         },
         user: {
-            id: get(token, ["sub"]),
+            id: token.sub,
         },
-        consentid: get(token, ["consentid"]),
+        consentid: token.consentid,
     };
 };
 

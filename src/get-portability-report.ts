@@ -2,75 +2,53 @@
  * © World Data Exchange. All rights reserved.
  */
 
-import * as t from "io-ts";
 import { getRandomAlphaNumeric } from "./crypto";
 import { net } from "./net";
-import { UserAccessToken, UserAccessTokenCodec } from "./types/user-access-token";
 import { sign } from "jsonwebtoken";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { ContractDetailsSchema } from "./types/common";
+import { z } from "zod/v4";
+import { UserAccessTokenSchema } from "./types/user-access-token-new";
+import { parseWithSchema } from "./utils/parse-with-schema";
 
-export type Format = "xml";
+export const Format = z.literal("xml");
+export type Format = z.infer<typeof Format>;
 
-const FormatCodec: t.Type<Format> = t.keyof({
-    xml: null,
+export const ServiceType = z.literal("medmij");
+export type ServiceType = z.infer<typeof ServiceType>;
+
+export const GetPortabilityReportOptions = z.object({
+    /** File format to be returned. Currently only XML is supported. */
+    format: Format,
+    /** Service type medmij is only supported for now. */
+    serviceType: ServiceType,
+    /**  Any contract related details here. */
+    contractDetails: ContractDetailsSchema,
+    /** User access token you may already have for this user from this or from another contract. */
+    userAccessToken: UserAccessTokenSchema,
+    /** From timestamp in seconds */
+    from: z.number().optional(),
+    /* To timestamp in seconds */
+    to: z.number().optional(),
 });
 
-export type ServiceType = "medmij";
+export type GetPortabilityReportOptions = z.infer<typeof GetPortabilityReportOptions>;
+export type GetPortabilityReportOptionsInput = z.input<typeof GetPortabilityReportOptions>;
 
-const ServiceTypeCodec: t.Type<ServiceType> = t.keyof({
-    medmij: null,
+export const GetPortabilityReportResponse = z.object({
+    file: z.string(),
 });
 
-export interface GetPortabilityReportOptions {
-    /**
-     * File format to be returned. Currently only XML is supported.
-     */
-    format: Format;
-    /**
-     * Service type medmij is only supported for now.
-     */
-    serviceType: ServiceType;
-    /**
-     * Any contract related details here.
-     */
-    contractDetails: ContractDetails;
-    /**
-     * User access token you may already have for this user from this or from another contract.
-     */
-    userAccessToken: UserAccessToken;
-    /**
-     * From timestamp in seconds
-     */
-    from?: number;
-    /**
-     * To timestamp in seconds
-     */
-    to?: number;
-}
-
-export const GetPortabilityReportOptionsCodec: t.Type<GetPortabilityReportOptions> = t.intersection([
-    t.type({
-        contractDetails: ContractDetailsCodec,
-        userAccessToken: UserAccessTokenCodec,
-        format: FormatCodec,
-        serviceType: ServiceTypeCodec,
-    }),
-    t.partial({
-        from: t.number,
-        to: t.number,
-    }),
-]);
-
-export interface GetPortabilityReportResponse {
-    file: string;
-}
+export type GetPortabilityReportResponse = z.infer<typeof GetPortabilityReportResponse>;
 
 const getPortabilityReport = async (
-    props: GetPortabilityReportOptions,
+    props: GetPortabilityReportOptionsInput,
     sdkConfig: SDKConfiguration
 ): Promise<GetPortabilityReportResponse> => {
-    const { to, from, contractDetails, userAccessToken, serviceType, format } = props;
+    const { to, from, contractDetails, userAccessToken, serviceType, format } = parseWithSchema(
+        GetPortabilityReportOptions,
+        props
+    );
     const { contractId, privateKey } = contractDetails;
 
     const response = await net.get(
@@ -102,9 +80,7 @@ const getPortabilityReport = async (
         }
     );
 
-    return {
-        file: response.body,
-    };
+    return parseWithSchema(GetPortabilityReportResponse, { file: response.body });
 };
 
 export { getPortabilityReport };

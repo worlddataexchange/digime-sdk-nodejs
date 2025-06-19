@@ -5,35 +5,36 @@
 import { getRandomAlphaNumeric } from "./crypto";
 import { sign } from "jsonwebtoken";
 import { net, handleServerResponse } from "./net";
-import { UserAccessToken } from "./types/user-access-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails } from "./types/common";
-import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
-import * as t from "io-ts";
+import { ContractDetailsSchema } from "./types/common";
+import { z } from "zod/v4";
+import { UserAccessTokenSchema } from "./types/user-access-token-new";
+import { parseWithSchema } from "./utils/parse-with-schema";
 
-export interface GetRevokeAccountPermissionUrlOptions {
-    contractDetails: ContractDetails;
-    userAccessToken: UserAccessToken;
-    accountId: string;
-    redirectUri: string;
-}
-
-export interface GetRevokeAccountPermissionUrlResponse {
-    location: string;
-}
-
-const GetRevokeAccountPermissionResponseUrlCodec = t.type({
-    location: t.string,
+export const GetRevokeAccountPermissionUrlOptions = z.object({
+    contractDetails: ContractDetailsSchema,
+    userAccessToken: UserAccessTokenSchema,
+    accountId: z.string(),
+    redirectUri: z.string(),
 });
 
-export const assertIsGetRevokeAccountPermissionUrlResponse: CodecAssertion<GetRevokeAccountPermissionUrlResponse> =
-    codecAssertion(GetRevokeAccountPermissionResponseUrlCodec);
+export type GetRevokeAccountPermissionUrlOptionsInput = z.input<typeof GetRevokeAccountPermissionUrlOptions>;
+export type GetRevokeAccountPermissionUrlOptions = z.infer<typeof GetRevokeAccountPermissionUrlOptions>;
+
+export const GetRevokeAccountPermissionUrlResponse = z.object({
+    location: z.string(),
+});
+
+export type GetRevokeAccountPermissionUrlResponse = z.infer<typeof GetRevokeAccountPermissionUrlResponse>;
 
 const getRevokeAccountPermissionUrl = async (
-    options: GetRevokeAccountPermissionUrlOptions,
+    options: GetRevokeAccountPermissionUrlOptionsInput,
     sdkConfig: SDKConfiguration
 ): Promise<GetRevokeAccountPermissionUrlResponse> => {
-    const { userAccessToken, contractDetails, accountId, redirectUri } = options;
+    const { userAccessToken, contractDetails, accountId, redirectUri } = parseWithSchema(
+        GetRevokeAccountPermissionUrlOptions,
+        options
+    );
     const { contractId, privateKey } = contractDetails;
 
     const url = `${String(sdkConfig.baseUrl)}permission-access/revoke/h:accountId`;
@@ -69,9 +70,7 @@ const getRevokeAccountPermissionUrl = async (
             },
         });
 
-        assertIsGetRevokeAccountPermissionUrlResponse(response.body);
-
-        return response.body;
+        return parseWithSchema(GetRevokeAccountPermissionUrlResponse, response.body);
     } catch (error) {
         handleServerResponse(error);
         throw error;

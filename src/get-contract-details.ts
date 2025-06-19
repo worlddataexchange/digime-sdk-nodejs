@@ -4,13 +4,11 @@
 
 import { handleServerResponse, net } from "./net";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { TypeValidationError } from "./errors";
-import * as t from "io-ts";
-export type { DiscoveryService } from "./types/api/get-discovery-api-services";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { ContractDetails, ContractDetailsSchema } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
-import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
+import { z } from "zod/v4";
+import { parseWithSchema } from "./utils/parse-with-schema";
 
 export type ContractAccessType = "r" | "w";
 
@@ -21,11 +19,11 @@ export interface ContractApplication {
     status: number;
 }
 
-const ContractApplicationCodec: t.Type<ContractApplication> = t.type({
-    id: t.string,
-    name: t.string,
-    resources: t.record(t.string, t.unknown),
-    status: t.number,
+export const ContractApplication = z.object({
+    id: z.string(),
+    name: z.string(),
+    resources: z.record(z.string(), z.unknown()),
+    status: z.number(),
 });
 
 export interface GetContractDetailsResponse {
@@ -39,15 +37,15 @@ export interface GetContractDetailsResponse {
     type: string;
 }
 
-const GetContractDetailsResponseCodec: t.Type<GetContractDetailsResponse> = t.type({
-    accessType: t.union([t.literal("r"), t.literal("w")]),
-    application: ContractApplicationCodec,
-    certificate: t.string,
-    certificateContractSchemaVersion: t.string,
-    expirationDate: t.number,
-    id: t.string,
-    partnerId: t.string,
-    type: t.string,
+export const GetContractDetailsResponse = z.object({
+    accessType: z.union([z.literal("r"), z.literal("w")]),
+    application: ContractApplication,
+    certificate: z.string(),
+    certificateContractSchemaVersion: z.string(),
+    expirationDate: z.number(),
+    id: z.string(),
+    partnerId: z.string(),
+    type: z.string(),
 });
 
 export interface GetContractDetailsOptions {
@@ -57,25 +55,23 @@ export interface GetContractDetailsOptions {
     contractDetails: ContractDetails;
 }
 
-const GetContractDetailsOptionsCodec: t.Type<GetContractDetailsOptions> = t.type({
-    contractDetails: ContractDetailsCodec,
+export const GetContractDetailsOptions = z.object({
+    contractDetails: ContractDetailsSchema,
 });
 
-const assertIsGetContractDetailsResponse: CodecAssertion<GetContractDetailsResponse> = codecAssertion(
-    GetContractDetailsResponseCodec
-);
+export interface GetContractDetailsOptions {
+    /**
+     * Contract details here.
+     */
+    contractDetails: z.infer<typeof ContractDetailsSchema>;
+}
 
 const getContractDetails = async (
     options: GetContractDetailsOptions,
     sdkConfig: SDKConfiguration
 ): Promise<GetContractDetailsResponse> => {
-    if (!GetContractDetailsOptionsCodec.is(options)) {
-        throw new TypeValidationError(
-            "Parameters failed validation. Params should be defined as outlined in GetContractDetailsOptions type"
-        );
-    }
+    const { contractDetails } = parseWithSchema(GetContractDetailsOptions, options);
 
-    const { contractDetails } = options;
     const { contractId, privateKey } = contractDetails;
 
     try {
@@ -105,11 +101,7 @@ const getContractDetails = async (
             },
         });
 
-        assertIsGetContractDetailsResponse(response.body);
-
-        return {
-            ...response.body,
-        };
+        return parseWithSchema(GetContractDetailsResponse, response.body);
     } catch (error) {
         handleServerResponse(error);
         throw error;

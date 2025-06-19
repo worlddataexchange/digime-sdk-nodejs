@@ -14,8 +14,8 @@ import { ApiError } from "./types/api/api-error-response";
 class DigiMeSDKError extends Error {
     public name = "DigiMeSDKError";
 
-    constructor(message: Error["message"]) {
-        super(message);
+    constructor(...parameters: ConstructorParameters<typeof Error>) {
+        super(...parameters);
         Error.captureStackTrace(this, this.constructor);
     }
 }

@@ -4,112 +4,78 @@
 
 import { handleServerResponse, net } from "./net";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { TypeValidationError } from "./errors";
-import * as t from "io-ts";
 export type { DiscoveryService } from "./types/api/get-discovery-api-services";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { ContractDetailsSchema } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
-import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
-import { LiteralUnion } from "type-fest";
+import { z } from "zod/v4";
+import { parseWithSchema } from "./utils/parse-with-schema";
 
-export interface CountryResource {
-    mimetype?: string;
-    resize?: string;
-    type?: number;
-    url?: string;
-}
-
-const ResourceCodec: t.Type<CountryResource> = t.partial({
-    mimetype: t.string,
-    resize: t.string,
-    type: t.number,
-    url: t.string,
+export const CountryResource = z.object({
+    mimetype: z.string().optional(),
+    resize: z.string().optional(),
+    type: z.number().optional(),
+    url: z.string().optional(),
 });
 
-export interface Country extends Record<string, unknown> {
-    id: number;
-    code?: string;
-    name?: string;
-    resource?: CountryResource;
-}
+export type CountryResource = z.infer<typeof CountryResource>;
 
-export const CountryCodec: t.Type<Country> = t.intersection([
-    t.type({
-        id: t.number,
-    }),
-    t.partial({
-        code: t.string,
-        name: t.string,
-        resource: ResourceCodec,
-    }),
+export const Country = z.object({
+    id: z.number(),
+    code: z.string().optional(),
+    name: z.string().optional(),
+    resource: CountryResource.optional(),
+});
+
+export type Country = z.infer<typeof Country>;
+
+export const QueryCountriesResponse = z.object({
+    data: z.array(Country),
+});
+
+export type QueryCountriesResponse = z.infer<typeof QueryCountriesResponse>;
+
+export const CountriesIncludeFieldList = z.union([
+    z.literal("id"),
+    z.literal("name"),
+    z.literal("code"),
+    z.literal("json"),
+    z.literal("resource.mimetype"),
+    z.literal("resource.url"),
 ]);
 
-export interface QueryCountriesResponse {
-    /**
-     * List of countries
-     */
-    data: Country[];
-}
+export type CountriesIncludeFieldList = z.infer<typeof CountriesIncludeFieldList>;
 
-export type CountriesIncludeFieldList = "id" | "name" | "code" | "resource.url" | "resource.mimetype" | "json";
+export const CountriesBodyParams = z
+    .object({
+        query: z
+            .object({
+                include: z.array(CountriesIncludeFieldList).optional(),
+                filter: z
+                    .object({
+                        id: z.array(z.number()).optional(),
+                    })
+                    .optional(),
+            })
+            .optional(),
+    })
+    .loose();
 
-export interface CountriesBodyParams extends Record<string, unknown> {
-    query?: {
-        /**
-         * Posible fields to include are defined in type CountriesIncludeFieldList .
-         */
-        include?: LiteralUnion<CountriesIncludeFieldList, string>[];
-        filter?: {
-            id?: number[];
-        };
-    };
-}
+export type CountriesBodyParams = z.infer<typeof CountriesBodyParams>;
 
-export const CountriesBodyParamsCodec: t.Type<CountriesBodyParams> = t.partial({
-    query: t.partial({
-        include: t.array(t.string),
-    }),
+export const QueryCountriesOptions = z.object({
+    contractDetails: ContractDetailsSchema,
+    countriesBodyParams: CountriesBodyParams.optional(),
 });
 
-export interface QueryCountriesOptions {
-    /**
-     * Contract details here.
-     */
-    contractDetails: ContractDetails;
-    /**
-     * Additional query options.
-     */
-    countriesBodyParams?: CountriesBodyParams;
-}
-
-export const QueryCountriesOptionsCodec: t.Type<QueryCountriesOptions> = t.intersection([
-    t.type({
-        contractDetails: ContractDetailsCodec,
-    }),
-    t.partial({
-        countriesBodyParams: CountriesBodyParamsCodec,
-    }),
-]);
-
-export const QueryCountriesResponseCodec: t.Type<QueryCountriesResponse> = t.type({
-    data: t.array(CountryCodec),
-});
-
-export const assertIsCountriesApiData: CodecAssertion<QueryCountriesResponse> =
-    codecAssertion(QueryCountriesResponseCodec);
+export type QueryCountriesOptions = z.infer<typeof QueryCountriesOptions>;
 
 const queryCountries = async (
     options: QueryCountriesOptions,
     sdkConfig: SDKConfiguration
 ): Promise<QueryCountriesResponse> => {
-    if (!QueryCountriesOptionsCodec.is(options)) {
-        throw new TypeValidationError(
-            "Parameters failed validation. Params should be defined as outlined in QueryCountriesOptions type"
-        );
-    }
+    const { contractDetails, countriesBodyParams } = parseWithSchema(QueryCountriesOptions, options);
 
-    const { contractDetails, countriesBodyParams } = options;
     const { contractId, privateKey } = contractDetails;
 
     try {
@@ -141,11 +107,7 @@ const queryCountries = async (
             },
         });
 
-        assertIsCountriesApiData(response.body);
-
-        return {
-            ...response.body,
-        };
+        return parseWithSchema(QueryCountriesResponse, response.body);
     } catch (error) {
         handleServerResponse(error);
         throw error;

@@ -4,18 +4,14 @@
 
 import * as t from "io-ts";
 import { isNonEmptyString } from "../utils/basic-utils";
+import { z } from "zod/v4";
 
-export interface ContractDetails {
-    /**
-     * The ID of the contract to use
-     */
-    contractId: string;
+export const ContractDetailsSchema = z.object({
+    contractId: z.string().nonempty().describe("The ID of the contract to use"),
+    privateKey: z.string().nonempty().describe("A string of the private key in PKCS1 format"),
+});
 
-    /**
-     * A string of the private key in PKCS1 format
-     */
-    privateKey: string;
-}
+export type ContractDetails = z.infer<typeof ContractDetailsSchema>;
 
 export interface SampleDataOptions {
     /**

@@ -4,121 +4,85 @@
 
 import { handleServerResponse, net } from "./net";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { TypeValidationError } from "./errors";
-import * as t from "io-ts";
 export type { DiscoveryService } from "./types/api/get-discovery-api-services";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { ContractDetailsSchema } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
-import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
-import { LiteralUnion } from "type-fest";
+import { z } from "zod/v4";
+import { parseWithSchema } from "./utils/parse-with-schema";
 
-export interface CategoryResource {
-    mimetype?: string;
-    resize?: string;
-    type?: number;
-    url?: string;
-}
-
-const ResourceCodec: t.Type<CategoryResource> = t.partial({
-    mimetype: t.string,
-    resize: t.string,
-    type: t.number,
-    url: t.string,
+export const CategoryResource = z.object({
+    mimetype: z.string().optional(),
+    resize: z.string().optional(),
+    type: z.number().optional(),
+    url: z.string().optional(),
 });
 
-export interface Category extends Record<string, unknown> {
-    id: number;
-    categoryTypeId?: number;
-    name?: string;
-    reference?: string;
-    resource?: CategoryResource;
-    subTitle?: string;
-    title?: string;
-    expandedTitle?: string;
-    expandedSubTitle?: string;
-}
+export type CategoryResource = z.infer<typeof CategoryResource>;
 
-const PlatformCodec: t.Type<Category> = t.intersection([
-    t.type({
-        id: t.number,
-    }),
-    t.partial({
-        categoryTypeId: t.number,
-        name: t.string,
-        reference: t.string,
-        resource: ResourceCodec,
-        subTitle: t.string,
-        title: t.string,
-        expandedTitle: t.string,
-        expandedSubTitle: t.string,
-    }),
+export const Category = z
+    .object({
+        id: z.number(),
+        categoryTypeId: z.number().optional(),
+        name: z.string().optional(),
+        reference: z.string().optional(),
+        resource: CategoryResource.optional(),
+        subTitle: z.string().optional(),
+        title: z.string().optional(),
+        expandedTitle: z.string().optional(),
+        expandedSubTitle: z.string().optional(),
+    })
+    .loose();
+
+export type Category = z.infer<typeof Category>;
+
+export const QueryCategoriesResponse = z.object({
+    data: z.array(Category),
+});
+
+export type QueryCategoriesResponse = z.infer<typeof QueryCategoriesResponse>;
+
+export const CategoriesIncludeFieldList = z.union([
+    z.literal("id"),
+    z.literal("name"),
+    z.literal("reference"),
+    z.literal("json"),
+    z.literal("resource.mimetype"),
+    z.literal("resource.url"),
 ]);
 
-export interface QueryCategoriesResponse {
-    /**
-     * List of categories
-     */
-    data: Category[];
-}
+export type CategoriesIncludeFieldList = z.infer<typeof CategoriesIncludeFieldList>;
 
-export type CategoriesIncludeFieldList = "id" | "name" | "reference" | "json" | "resource.mimetype" | "resource.url";
+export const CategoriesBodyParams = z
+    .object({
+        query: z
+            .object({
+                include: z.array(CategoriesIncludeFieldList).optional(),
+                filter: z
+                    .object({
+                        id: z.array(z.number()).optional(),
+                    })
+                    .optional(),
+            })
+            .optional(),
+    })
+    .loose();
 
-export interface CategoriesBodyParams extends Record<string, unknown> {
-    query?: {
-        /**
-         * Posible fields to include are defined in type CategoriesIncludeFieldList .
-         */
-        include?: LiteralUnion<CategoriesIncludeFieldList, string>[];
-        filter?: {
-            id?: number[];
-        };
-    };
-}
+export type CategoriesBodyParams = z.infer<typeof CategoriesBodyParams>;
 
-const CategoriesBodyParamsCodec: t.Type<CategoriesBodyParams> = t.partial({
-    query: t.partial({
-        include: t.array(t.string),
-    }),
+export const QueryCategoriesOptions = z.object({
+    contractDetails: ContractDetailsSchema,
+    categoriesBodyParams: CategoriesBodyParams.optional(),
 });
 
-export interface QueryCategoriesOptions {
-    /**
-     * Contract details here.
-     */
-    contractDetails: ContractDetails;
-    /**
-     * Additional query options.
-     */
-    categoriesBodyParams?: CategoriesBodyParams;
-}
-
-const QueryCategoriesOptionsCodec: t.Type<QueryCategoriesOptions> = t.intersection([
-    t.type({
-        contractDetails: ContractDetailsCodec,
-    }),
-    t.partial({
-        categoriesBodyParams: CategoriesBodyParamsCodec,
-    }),
-]);
-
-const QueryCategoriesResponseCodec: t.Type<QueryCategoriesResponse> = t.type({
-    data: t.array(PlatformCodec),
-});
-
-const assertIsCategoriesApiData: CodecAssertion<QueryCategoriesResponse> = codecAssertion(QueryCategoriesResponseCodec);
+export type QueryCategoriesOptions = z.infer<typeof QueryCategoriesOptions>;
 
 const queryCategories = async (
     options: QueryCategoriesOptions,
     sdkConfig: SDKConfiguration
 ): Promise<QueryCategoriesResponse> => {
-    if (!QueryCategoriesOptionsCodec.is(options)) {
-        throw new TypeValidationError(
-            "Parameters failed validation. Params should be defined as outlined in QueryCategoriesOptions type"
-        );
-    }
+    const { contractDetails, categoriesBodyParams } = parseWithSchema(QueryCategoriesOptions, options);
 
-    const { contractDetails, categoriesBodyParams } = options;
     const { contractId, privateKey } = contractDetails;
 
     try {
@@ -150,11 +114,7 @@ const queryCategories = async (
             },
         });
 
-        assertIsCategoriesApiData(response.body);
-
-        return {
-            ...response.body,
-        };
+        return parseWithSchema(QueryCategoriesResponse, response.body);
     } catch (error) {
         handleServerResponse(error);
         throw error;

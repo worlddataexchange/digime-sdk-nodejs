@@ -6,52 +6,34 @@ import { handleServerResponse, net } from "./net";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
-import * as t from "io-ts";
-import { TypeValidationError } from "./errors";
-import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
+import { ContractDetailsSchema } from "./types/common";
+import { z } from "zod/v4";
+import { parseWithSchema } from "./utils/parse-with-schema";
 
-export interface GetServiceSampleDataSetsOptions {
-    contractDetails: ContractDetails;
-    sourceId: number;
-}
-
-export const ServiceSampleDataSetsOptionsOptionsCodec: t.Type<GetServiceSampleDataSetsOptions> = t.type({
-    contractDetails: ContractDetailsCodec,
-    sourceId: t.number,
+export const GetServiceSampleDataSetsOptions = z.object({
+    contractDetails: ContractDetailsSchema,
+    sourceId: z.number(),
 });
 
-type DataSet = {
-    description: string;
-    name: string;
-};
+export type GetServiceSampleDataSetsOptions = z.infer<typeof GetServiceSampleDataSetsOptions>;
 
-const DataSetCodec = t.type({
-    description: t.string,
-    name: t.string,
+export const DataSet = z.object({
+    description: z.string(),
+    name: z.string(),
 });
 
-export type GetServiceSampleDataSetsResponse = {
-    [key: string]: DataSet;
-};
+export type DataSet = z.infer<typeof DataSet>;
 
-const GetServiceSampleDataSetsResponseCodec = t.record(t.string, DataSetCodec);
+export const GetServiceSampleDataSetsResponse = z.record(z.string(), DataSet);
 
-export const assertIsDataSetsResponse: CodecAssertion<GetServiceSampleDataSetsResponse> = codecAssertion(
-    GetServiceSampleDataSetsResponseCodec
-);
+export type GetServiceSampleDataSetsResponse = z.infer<typeof GetServiceSampleDataSetsResponse>;
 
 const getServiceSampleDataSets = async (
     options: GetServiceSampleDataSetsOptions,
     sdkConfig: SDKConfiguration
 ): Promise<GetServiceSampleDataSetsResponse> => {
-    if (!ServiceSampleDataSetsOptionsOptionsCodec.is(options)) {
-        throw new TypeValidationError(
-            "Parameters failed validation. props should be a plain object that contains the properties contractDetails and sourceId"
-        );
-    }
+    const { contractDetails, sourceId } = parseWithSchema(GetServiceSampleDataSetsOptions, options);
 
-    const { contractDetails, sourceId } = options;
     const { contractId, privateKey } = contractDetails;
 
     try {
@@ -82,11 +64,7 @@ const getServiceSampleDataSets = async (
             },
         });
 
-        const datasets = response.body;
-
-        assertIsDataSetsResponse(datasets);
-
-        return datasets;
+        return parseWithSchema(GetServiceSampleDataSetsResponse, response.body);
     } catch (error) {
         handleServerResponse(error);
         throw error;
