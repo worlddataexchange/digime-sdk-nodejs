@@ -14,6 +14,7 @@ import { refreshTokenWrapper } from "./utils/refresh-token-wrapper";
 import { getPayloadFromToken } from "./utils/get-payload-from-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import {
+    Consumer,
     ContractDetails,
     ContractDetailsCodec,
     PullSessionOptions,
@@ -85,6 +86,8 @@ export interface GetOnboardServiceUrlOptions {
      * Any extra data you want to be passed back after a authorization flow.
      */
     state?: string;
+
+    consumer?: Consumer;
 }
 
 const GetOnboardServiceUrlCodec: t.Type<GetOnboardServiceUrlOptions> = t.intersection([
@@ -135,6 +138,7 @@ const _getOnboardServiceUrl = async (
         triggerQuery,
         sourcesScope,
         state,
+        consumer,
     } = props;
     const { contractId, privateKey } = contractDetails;
 
@@ -151,6 +155,7 @@ const _getOnboardServiceUrl = async (
                         node: process.version,
                     },
                 },
+                consumer: consumer,
             },
             actions: sessionOptions,
         },

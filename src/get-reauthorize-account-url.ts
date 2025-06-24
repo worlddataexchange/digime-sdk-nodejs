@@ -13,7 +13,7 @@ import { URL, URLSearchParams } from "node:url";
 import { refreshTokenWrapper } from "./utils/refresh-token-wrapper";
 import { getPayloadFromToken } from "./utils/get-payload-from-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { Consumer, ContractDetails, ContractDetailsCodec } from "./types/common";
 import { TypeValidationError } from "./errors";
 import { isNonEmptyString } from "./utils/basic-utils";
 import sdkVersion from "./sdk-version";
@@ -41,6 +41,8 @@ export interface GetReauthorizeAccountUrlOptions {
      * If browser locale is not supported we will fallback to default locale (en).
      */
     locale?: string;
+
+    consumer?: Consumer;
 }
 
 const GetReauthorizeAccountUrlOptionsCodec: t.Type<GetReauthorizeAccountUrlOptions> = t.type({
@@ -122,7 +124,7 @@ const _getReauthorizeAccountUrl = async (
         throw new TypeValidationError("Error on getReauthorizeAccountUrl(). Incorrect parameters passed in.");
     }
 
-    const { userAccessToken, contractDetails, callback, locale } = props;
+    const { userAccessToken, contractDetails, callback, locale, consumer } = props;
     const { contractId, privateKey } = contractDetails;
 
     const response = await net.post(`${String(sdkConfig.baseUrl)}oauth/token/reference`, {
@@ -138,6 +140,7 @@ const _getReauthorizeAccountUrl = async (
                         node: process.version,
                     },
                 },
+                consumer: consumer,
             },
         },
         responseType: "json",
