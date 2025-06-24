@@ -15,6 +15,7 @@ import { handleServerResponse, net } from "./net";
 import get from "lodash.get";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import {
+    Consumer,
     ContractDetails,
     ContractDetailsCodec,
     PullSessionOptions,
@@ -101,6 +102,8 @@ export interface GetAuthorizeUrlOptions {
      * Currently this is only used for data types but will be used for other params as well.
      */
     sourcesScope?: SourcesScope;
+
+    consumer?: Consumer;
 }
 
 export const GetAuthorizeUrlOptionsCodec: t.Type<GetAuthorizeUrlOptions> = t.intersection([
@@ -197,7 +200,7 @@ interface AuthorizeResponse {
 }
 
 const _authorize = async (
-    { contractDetails, sessionOptions, state, userAccessToken, callback }: GetAuthorizeUrlOptions,
+    { contractDetails, sessionOptions, state, userAccessToken, callback, consumer }: GetAuthorizeUrlOptions,
     sdkConfig: SDKConfiguration
 ): Promise<AuthorizeResponse> => {
     const { contractId, privateKey } = contractDetails;
@@ -213,6 +216,7 @@ const _authorize = async (
                             node: process.version,
                         },
                     },
+                    consumer: consumer,
                 },
                 actions: sessionOptions,
             },

@@ -11,7 +11,13 @@ import { sign } from "jsonwebtoken";
 import { URL, URLSearchParams } from "node:url";
 import { getPayloadFromToken } from "./utils/get-payload-from-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails, ContractDetailsCodec, PullSessionOptions, PullSessionOptionsCodec } from "./types/common";
+import {
+    Consumer,
+    ContractDetails,
+    ContractDetailsCodec,
+    PullSessionOptions,
+    PullSessionOptionsCodec,
+} from "./types/common";
 import { TypeValidationError } from "./errors";
 import { isNonEmptyString } from "./utils/basic-utils";
 import sdkVersion from "./sdk-version";
@@ -54,6 +60,8 @@ export interface GetReauthorizeUrlOptions {
      * You may want to set to false when adding multiple services subsequently and only get data for all services when adding last service.
      */
     triggerQuery?: boolean;
+
+    consumer?: Consumer;
 }
 
 const GetReauthorizeUrlCodec: t.Type<GetReauthorizeUrlOptions> = t.intersection([
@@ -86,7 +94,7 @@ const getReauthorizeUrl = async (
         throw new TypeValidationError("Error on getReauthorizeUrl(). Incorrect parameters passed in.");
     }
 
-    const { userAccessToken, contractDetails, callback, locale, state, sessionOptions, triggerQuery } = props;
+    const { userAccessToken, contractDetails, callback, locale, state, sessionOptions, triggerQuery, consumer } = props;
     const { contractId, privateKey } = contractDetails;
     let codeVerifier: string = "";
     try {
@@ -103,6 +111,7 @@ const getReauthorizeUrl = async (
                             node: process.version,
                         },
                     },
+                    consumer: consumer,
                 },
                 actions: sessionOptions,
             },

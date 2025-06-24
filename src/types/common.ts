@@ -302,3 +302,19 @@ export const SourcesScopeCodec: t.Type<SourcesScope> = t.partial({
     dataType: t.array(DataTypeCodec),
     organizationType: OrganizationTypeCodec,
 });
+
+export type Ontology = { name: "me.digi"; version: "v1" } | { name: "fhir"; version: "stu3" };
+
+export interface OntologyWrapper {
+    ontology: Ontology;
+}
+
+export interface ObjectVersions {
+    service: Record<string, OntologyWrapper[]>;
+    objectType?: Record<string, OntologyWrapper[]>;
+}
+
+export interface Consumer {
+    version?: string;
+    objectVersions: ObjectVersions;
+}
