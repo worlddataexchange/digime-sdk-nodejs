@@ -9,7 +9,13 @@ import get from "lodash.get";
 import { assertIsSession, Session } from "./types/api/session";
 import { UserAccessToken, UserAccessTokenCodec } from "./types/user-access-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails, ContractDetailsCodec, PullSessionOptions, PullSessionOptionsCodec } from "./types/common";
+import {
+    Consumer,
+    ContractDetails,
+    ContractDetailsCodec,
+    PullSessionOptions,
+    PullSessionOptionsCodec,
+} from "./types/common";
 import * as t from "io-ts";
 import { TypeValidationError } from "./errors";
 import { refreshTokenWrapper } from "./utils/refresh-token-wrapper";
@@ -19,6 +25,7 @@ export interface ReadSessionOptions {
     contractDetails: ContractDetails;
     userAccessToken: UserAccessToken;
     sessionOptions?: PullSessionOptions;
+    consumer?: Consumer;
 }
 
 export interface ReadSessionResponse {
@@ -43,7 +50,7 @@ const _readSession = async (options: ReadSessionOptions, sdkConfig: SDKConfigura
         );
     }
 
-    const { contractDetails, userAccessToken, sessionOptions } = options;
+    const { contractDetails, userAccessToken, sessionOptions, consumer } = options;
 
     const { contractId, privateKey } = contractDetails;
 
@@ -63,6 +70,7 @@ const _readSession = async (options: ReadSessionOptions, sdkConfig: SDKConfigura
                         node: process.version,
                     },
                 },
+                consumer: consumer,
             },
         },
         responseType: "json",
