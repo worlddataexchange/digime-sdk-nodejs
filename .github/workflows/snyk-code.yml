@@ -1,0 +1,13 @@
+name: SnykCodeScan
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'main'
+      - 'NPT-*'
+
+jobs:
+  SnykCodeScan:
+    uses: worlddataexchange/cicd/.github/workflows/snyk-code.yml@main
+    secrets: inherit

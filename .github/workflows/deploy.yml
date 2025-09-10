@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_tag:
+          type: choice
+          description: Select Tag
+          options:
+              - unstable
+              - latest
+              - next
+      custom_publish_tag_override:
+      release:
+        type: boolean
+jobs:
+  Deploy:
+    uses: worlddataexchange/cicd/.github/workflows/sdk-lib.yml@main
+    with:
+      node_version: 22.17.0
+    secrets: inherit
