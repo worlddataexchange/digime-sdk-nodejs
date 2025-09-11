@@ -6,7 +6,6 @@ import { handleServerResponse, net } from "./net";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import { TypeValidationError } from "./errors";
 import * as t from "io-ts";
-export type { DiscoveryService } from "./types/api/get-discovery-api-services";
 import { ContractDetails, ContractDetailsCodec } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";

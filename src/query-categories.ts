@@ -4,7 +4,6 @@
 
 import { handleServerResponse, net } from "./net";
 import { SDKConfiguration } from "./types/sdk-configuration";
-export type { DiscoveryService } from "./types/api/get-discovery-api-services";
 import { ContractDetailsSchema } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
