@@ -50,23 +50,33 @@ const CAFileListEntryCodec: t.Type<CAFileListEntry> = t.intersection([
     }),
 ]);
 
-interface ObjectTypeError {
-    error: {
-        code: string;
-        message: string;
-        statusCode: number;
-    };
-    objectType: number;
+interface InnerErrorType {
+    code: string;
+    message: string;
+    statusCode: number;
 }
 
-const ObjectTypeErrorCodec: t.Type<ObjectTypeError> = t.type({
-    error: t.type({
-        code: t.string,
-        message: t.string,
-        statusCode: t.number,
-    }),
-    objectType: t.number,
+const InnerErrorTypeCodec: t.Type<InnerErrorType> = t.type({
+    code: t.string,
+    message: t.string,
+    statusCode: t.number,
 });
+
+interface ObjectTypeError {
+    error: InnerErrorType;
+    objectType: number;
+    errors?: InnerErrorType[];
+}
+
+const ObjectTypeErrorCodec: t.Type<ObjectTypeError> = t.intersection([
+    t.type({
+        error: InnerErrorTypeCodec,
+        objectType: t.number,
+    }),
+    t.partial({
+        errors: t.array(InnerErrorTypeCodec),
+    }),
+]);
 
 interface PartialError {
     code: string;
