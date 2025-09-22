@@ -16,6 +16,7 @@ class DigiMeSDKError extends Error {
 
     constructor(message: Error["message"]) {
         super(message);
+        // eslint-disable-next-line unicorn/no-useless-error-capture-stack-trace
         Error.captureStackTrace(this, this.constructor);
     }
 }

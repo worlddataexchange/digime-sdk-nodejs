@@ -40,6 +40,7 @@ export default [
             "@typescript-eslint/no-unsafe-assignment": "off",
             "@typescript-eslint/explicit-function-return-type": "off",
             "@typescript-eslint/no-confusing-void-expression": "off",
+            "@typescript-eslint/no-unnecessary-type-conversion": "off",
             "@typescript-eslint/no-empty-interface": [
                 "error",
                 {
