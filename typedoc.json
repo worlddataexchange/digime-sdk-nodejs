@@ -20,8 +20,7 @@
         "documents/query.md",
         "documents/storage.md",
         "documents/sample-datasets.md",
-        "documents/portability-report.md",
-        "documents/example-applications.md"
+        "documents/portability-report.md"
     ],
     "sort": ["kind", "instance-first", "alphabetical-ignoring-documents"]
 }
