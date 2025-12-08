@@ -1,6 +1,6 @@
 {
     "name": "@worlddataexchange/digime-sdk-nodejs",
-    "version": "17.0.3",
+    "version": "17.0.4-rc.1",
     "description": "Node.JS SDK for digi.me",
     "main": "dist/main/index.js",
     "types": "dist/main/index.d.ts",
