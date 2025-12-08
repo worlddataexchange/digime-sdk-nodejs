@@ -45,7 +45,7 @@ const createCAData = (key: NodeRSA, inputData: string, options?: CreateCADataOpt
     }
 
     // Encrypt data
-    const cipher: crypto.Cipher = crypto.createCipheriv("aes-256-cbc", dsk, div);
+    const cipher: crypto.Cipheriv = crypto.createCipheriv("aes-256-cbc", dsk, div);
     const encryptedData: Buffer = Buffer.concat([cipher.update(data), cipher.final()]);
 
     const output: Buffer = Buffer.concat([key.encrypt(dsk), div, encryptedData]);
