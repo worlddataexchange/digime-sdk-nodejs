@@ -11,7 +11,6 @@ import { UserAccessToken, UserAccessTokenCodec } from "./types/user-access-token
 import { SDKConfiguration } from "./types/sdk-configuration";
 import { ContractDetails, ContractDetailsCodec } from "./types/common";
 import * as t from "io-ts";
-import urijs from "urijs";
 import { Readable } from "node:stream";
 import { refreshTokenWrapper } from "./utils/refresh-token-wrapper";
 import { isFunction } from "./utils/basic-utils";
@@ -105,8 +104,6 @@ const _pushToLibrary = async (
 
     const { contractId, privateKey } = contractDetails;
 
-    const requestPath = urijs(`${String(sdkConfig.baseUrl)}permission-access/import`);
-
     const fileDescriptor = sign(
         {
             metadata: data.fileDescriptor,
@@ -118,7 +115,9 @@ const _pushToLibrary = async (
         }
     );
 
-    await net.post(requestPath.valueOf(), {
+    const requestPath = new URL("permission-access/import", sdkConfig.baseUrl);
+
+    await net.post(requestPath.toString(), {
         headers: {
             "Content-Type": "application/octet-stream",
             FileDescriptor: fileDescriptor,
@@ -176,11 +175,9 @@ const _pushToProvider = async (
 
     const { contractId, privateKey } = contractDetails;
 
-    const requestPath = urijs(
-        `${String(sdkConfig.baseUrl)}permission-access/import/h:accountId/${standard}/${version}`
-    );
+    const requestPath = new URL(`permission-access/import/h:accountId/${standard}/${version}`, sdkConfig.baseUrl);
 
-    await net.post(requestPath.valueOf(), {
+    await net.post(requestPath.toString(), {
         headers: {
             "Content-Type": "application/json",
             accountId,

@@ -318,3 +318,9 @@ export interface Consumer {
     version?: string;
     objectVersions: ObjectVersions;
 }
+
+type PrimitiveTypes = string | number | bigint | boolean | symbol | null | undefined;
+
+export type LiteralUnion<LiteralType, BaseType extends PrimitiveTypes> =
+    | LiteralType
+    | (BaseType & Record<never, never>);

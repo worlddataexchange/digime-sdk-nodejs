@@ -7,7 +7,6 @@ import { isNonEmptyString } from "./utils/basic-utils";
 import { net } from "./net";
 import { getRandomAlphaNumeric } from "./crypto";
 import { assertIsDecodedCAFileHeaderResponse, MappedFileMetadata, RawFileMetadata } from "./types/api/ca-file-response";
-import base64url from "base64url";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import { UserAccessToken } from "./types/user-access-token";
 import { sign } from "jsonwebtoken";
@@ -94,7 +93,7 @@ const fetchFileMetadata = async (
     let decodedMeta: unknown;
 
     if (base64Meta) {
-        decodedMeta = JSON.parse(base64url.decode(base64Meta));
+        decodedMeta = JSON.parse(Buffer.from(base64Meta, "base64url").toString());
     }
 
     assertIsDecodedCAFileHeaderResponse(decodedMeta);

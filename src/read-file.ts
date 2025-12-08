@@ -9,7 +9,6 @@ import { decryptData, getRandomAlphaNumeric } from "./crypto";
 import NodeRSA from "node-rsa";
 import { assertIsDecodedCAFileHeaderResponse, MappedFileMetadata, RawFileMetadata } from "./types/api/ca-file-response";
 import * as zlib from "node:zlib";
-import base64url from "base64url";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import { UserAccessToken } from "./types/user-access-token";
 import { sign } from "jsonwebtoken";
@@ -114,7 +113,7 @@ const fetchFile = async (options: ReadFileOptionsFormated, sdkConfig: SDKConfigu
     let decodedMeta;
 
     if (base64Meta) {
-        decodedMeta = JSON.parse(base64url.decode(base64Meta));
+        decodedMeta = JSON.parse(Buffer.from(base64Meta, "base64url").toString());
     }
 
     assertIsDecodedCAFileHeaderResponse(decodedMeta);
