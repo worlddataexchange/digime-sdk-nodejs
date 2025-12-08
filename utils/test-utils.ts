@@ -10,7 +10,6 @@ import type { Interceptor, ReplyHeaders } from "nock";
 import NodeRSA from "node-rsa";
 import { gzipSync, brotliCompressSync } from "node:zlib";
 import type { ClientRequest } from "node:http";
-import base64url from "base64url";
 import { verify } from "jsonwebtoken";
 import http, { RequestListener } from "node:http";
 import { Readable } from "node:stream";
@@ -45,7 +44,7 @@ const createCAData = (key: NodeRSA, inputData: string, options?: CreateCADataOpt
     }
 
     // Encrypt data
-    const cipher: crypto.Cipher = crypto.createCipheriv("aes-256-cbc", dsk, div);
+    const cipher: crypto.Cipheriv = crypto.createCipheriv("aes-256-cbc", dsk, div);
     const encryptedData: Buffer = Buffer.concat([cipher.update(data), cipher.final()]);
 
     const output: Buffer = Buffer.concat([key.encrypt(dsk), div, encryptedData]);
@@ -147,7 +146,7 @@ const fileContentToCAFormat = (
     }, []);
 
 const parseMetaToHeader = (meta: Record<string, unknown>): string => {
-    return base64url.encode(JSON.stringify(meta));
+    return Buffer.from(JSON.stringify(meta)).toString("base64url");
 };
 
 export const formatBodyError = ({
