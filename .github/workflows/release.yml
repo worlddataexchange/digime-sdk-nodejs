@@ -27,7 +27,7 @@ jobs:
               with:
                   node-version: "22.21.1"
                   registry-url: "https://registry.npmjs.org"
-                  always-auth: true
+                  always-auth: false
             - run: npm ci
             - run: npm run build
             - run: npm run lint
@@ -44,7 +44,7 @@ jobs:
                     npm publish --registry=https://registry.npmjs.org/ --provenance --access public --tag ${PUBLISH_TAG}
                   else
                     echo "Release Dry Run"
-                    npm publish --dry-run --registry=https://registry.npmjs.org/ --access public --tag ${PUBLISH_TAG}
+                    npm publish --dry-run --registry=https://registry.npmjs.org/ --provenance --access public --tag ${PUBLISH_TAG}
                   fi
               env:
                   PUBLISH_TAG: ${{ inputs.publish_tag }}
