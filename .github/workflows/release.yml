@@ -23,6 +23,7 @@ jobs:
             - uses: actions/setup-node@v6
               with:
                   node-version: "22.21.1"
+                  registry-url: "https://registry.npmjs.org"
             - run: npm ci
             - run: npm run build
             - run: npm run lint
@@ -36,8 +37,6 @@ jobs:
 
                   if [ "${RELEASE}" == "true" ]; then
                     echo "Release"
-
-                    npm config set //registry.npmjs.org/
                     npm publish --registry=https://registry.npmjs.org/ --access public --tag ${PUBLISH_TAG}
                   else
                     echo "Release Dry Run"
