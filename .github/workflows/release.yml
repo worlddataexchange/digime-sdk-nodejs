@@ -17,6 +17,9 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
         if: startsWith(github.ref, 'refs/tags/')
         steps:
             - uses: actions/checkout@v6
@@ -24,6 +27,7 @@ jobs:
               with:
                   node-version: "22.21.1"
                   registry-url: "https://registry.npmjs.org"
+                  always-auth: true
             - run: npm ci
             - run: npm run build
             - run: npm run lint
@@ -37,7 +41,7 @@ jobs:
 
                   if [ "${RELEASE}" == "true" ]; then
                     echo "Release"
-                    npm publish --registry=https://registry.npmjs.org/ --access public --tag ${PUBLISH_TAG}
+                    npm publish --registry=https://registry.npmjs.org/ --provenance --access public --tag ${PUBLISH_TAG}
                   else
                     echo "Release Dry Run"
                     npm publish --dry-run --registry=https://registry.npmjs.org/ --access public --tag ${PUBLISH_TAG}
