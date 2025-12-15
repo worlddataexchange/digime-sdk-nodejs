@@ -33,6 +33,9 @@ jobs:
             - run: npm run lint
             - run: npm run test
             - run: |
+
+                  npm config delete //registry.npmjs.org/:_authToken || true
+
                   if [ "${CUSTOM_PUBLISH_TAG_OVERRIDE}" != "" ]; then
                     PUBLISH_TAG=${CUSTOM_PUBLISH_TAG_OVERRIDE}
                   fi
