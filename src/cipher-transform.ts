@@ -6,7 +6,7 @@ import crypto from "node:crypto";
 import stream from "node:stream";
 
 export class CipherTransform extends stream.Transform {
-    private cipher: crypto.Cipher;
+    private cipher: crypto.Cipheriv;
     private chunksToPrepend: Buffer[] = [];
 
     constructor(privateKey: string, opts?: stream.TransformOptions) {

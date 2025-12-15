@@ -25,7 +25,7 @@ export class DecipherTransform extends stream.Transform {
     private remainingHeaderLength: number;
 
     private headerChunks: Buffer[] = [];
-    private decipher: crypto.Decipher | undefined;
+    private decipher: crypto.Decipheriv | undefined;
 
     constructor(
         private privateKey: string,
@@ -94,7 +94,7 @@ export class DecipherTransform extends stream.Transform {
         callback(error);
     }
 
-    private buildDecipher({ encryptedKey, initialisationVector }: DecipherParams): crypto.Decipher {
+    private buildDecipher({ encryptedKey, initialisationVector }: DecipherParams): crypto.Decipheriv {
         const dataEncryptionKey = crypto.privateDecrypt(this.privateKey, encryptedKey);
         return crypto.createDecipheriv("aes-256-cbc", dataEncryptionKey, initialisationVector);
     }
