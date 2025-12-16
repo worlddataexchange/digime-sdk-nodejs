@@ -1,6 +1,6 @@
 {
     "name": "@worlddataexchange/digime-sdk-nodejs",
-    "version": "17.0.4-rc.12",
+    "version": "17.0.4-rc.13",
     "description": "Node.JS SDK for digi.me",
     "main": "dist/main/index.js",
     "types": "dist/main/index.d.ts",
@@ -50,7 +50,7 @@
         "typedoc": "~0.28.15",
         "typedoc-plugin-missing-exports": "~4.1.2",
         "typescript": "~5.9.3",
-        "typescript-eslint": "~8.49.0"
+        "typescript-eslint": "~8.50.0"
     },
     "dependencies": {
         "@types/node-rsa": "~1.1.4",
