@@ -47,7 +47,6 @@ jobs:
                     npm publish --dry-run --provenance --access public --tag ${PUBLISH_TAG}
                   fi
               env:
-                  NPM_CONFIG_PROVENANCE: "true"
                   PUBLISH_TAG: ${{ inputs.publish_tag }}
                   RELEASE: ${{ inputs.release }}
                   CUSTOM_PUBLISH_TAG_OVERRIDE: ${{ inputs.custom_publish_tag_override }}
