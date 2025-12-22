@@ -10,7 +10,6 @@ import type { Interceptor, ReplyHeaders } from "nock";
 import NodeRSA from "node-rsa";
 import { gzipSync, brotliCompressSync } from "node:zlib";
 import type { ClientRequest } from "node:http";
-import base64url from "base64url";
 import { verify } from "jsonwebtoken";
 import http, { RequestListener } from "node:http";
 import { Readable } from "node:stream";
@@ -147,7 +146,7 @@ const fileContentToCAFormat = (
     }, []);
 
 const parseMetaToHeader = (meta: Record<string, unknown>): string => {
-    return base64url.encode(JSON.stringify(meta));
+    return Buffer.from(JSON.stringify(meta)).toString("base64url");
 };
 
 export const formatBodyError = ({

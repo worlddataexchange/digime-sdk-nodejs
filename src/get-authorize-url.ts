@@ -8,7 +8,6 @@ import { TypeValidationError } from "./errors";
 import { Session } from "./types/api/session";
 import { UserAccessToken, UserAccessTokenCodec } from "./types/user-access-token";
 import * as t from "io-ts";
-import base64url from "base64url";
 import { getRandomAlphaNumeric, hashSha256 } from "./crypto";
 import { sign } from "jsonwebtoken";
 import { handleServerResponse, net } from "./net";
@@ -225,12 +224,12 @@ const _authorize = async (
             hooks: {
                 beforeRequest: [
                     (options) => {
-                        codeVerifier = base64url(getRandomAlphaNumeric(32));
+                        codeVerifier = Buffer.from(getRandomAlphaNumeric(32)).toString("base64url");
                         const jwt: string = sign(
                             {
                                 access_token: userAccessToken?.accessToken.value,
                                 client_id: `${sdkConfig.applicationId}_${contractId}`,
-                                code_challenge: base64url(hashSha256(codeVerifier)),
+                                code_challenge: Buffer.from(hashSha256(codeVerifier)).toString("base64url"),
                                 code_challenge_method: "S256",
                                 nonce: getRandomAlphaNumeric(32),
                                 redirect_uri: callback,

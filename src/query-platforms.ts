@@ -7,11 +7,10 @@ import { SDKConfiguration } from "./types/sdk-configuration";
 import { TypeValidationError } from "./errors";
 import * as t from "io-ts";
 export type { DiscoveryService } from "./types/api/get-discovery-api-services";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { ContractDetails, ContractDetailsCodec, LiteralUnion } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
 import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
-import { LiteralUnion } from "type-fest";
 
 export interface Platform extends Record<string, unknown> {
     id: number;
