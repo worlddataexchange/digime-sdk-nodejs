@@ -3,7 +3,6 @@
  */
 
 import nock from "nock";
-import NodeRSA from "node-rsa";
 import { URL } from "node:url";
 import {
     TEST_BASE_URL,
@@ -17,7 +16,8 @@ import { ContractDetails } from "./types/common";
 import { GetAuthorizeUrlResponse } from "./get-authorize-url";
 import { sign } from "jsonwebtoken";
 import { HTTPError } from "got/dist/source";
-import { isDeepStrictEqual } from "node:util";
+import { isDeepStrictEqual } from "util";
+import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -31,8 +31,6 @@ const customSDK = init({
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 beforeEach(() => {
     nock.cleanAll();
 });
@@ -44,7 +42,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
     describe("getAuthorizeUrl", () => {
         const CONTRACT_DETAILS: ContractDetails = {
             contractId: "test-contract-id",
-            privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+            privateKey: testKeyPair.privateKey,
         };
 
         const CALLBACK_URL = "https://test.callback/";
@@ -166,7 +164,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                     {
                         preauthorization_code: "test-preauth-code",
                     },
-                    testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    testKeyPair.privateKey,
                     {
                         algorithm: "PS512",
                         noTimestamp: true,
@@ -188,7 +186,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                         keys: [
                             {
                                 kid: "test-kid",
-                                pem: testKeyPair.exportKey("pkcs1-public"),
+                                pem: testKeyPair.publicKey,
                             },
                         ],
                     });
@@ -229,7 +227,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                     {
                         preauthorization_code: "test-preauth-code",
                     },
-                    testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    testKeyPair.privateKey,
                     {
                         algorithm: "PS512",
                         noTimestamp: true,
@@ -251,7 +249,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                         keys: [
                             {
                                 kid: "test-kid",
-                                pem: testKeyPair.exportKey("pkcs1-public"),
+                                pem: testKeyPair.publicKey,
                             },
                         ],
                     });
@@ -352,7 +350,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                     {
                         preauthorization_code: "test-preauth-code",
                     },
-                    testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    testKeyPair.privateKey,
                     {
                         algorithm: "PS512",
                         noTimestamp: true,
@@ -394,7 +392,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                         keys: [
                             {
                                 kid: "test-kid",
-                                pem: testKeyPair.exportKey("pkcs1-public"),
+                                pem: testKeyPair.publicKey,
                             },
                         ],
                     });
@@ -436,7 +434,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                     {
                         preauthorization_code: "test-preauth-code",
                     },
-                    testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    testKeyPair.privateKey,
                     {
                         algorithm: "PS512",
                         noTimestamp: true,
@@ -465,7 +463,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                         keys: [
                             {
                                 kid: "test-kid",
-                                pem: testKeyPair.exportKey("pkcs1-public"),
+                                pem: testKeyPair.privateKey,
                             },
                         ],
                     });

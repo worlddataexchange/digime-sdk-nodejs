@@ -3,7 +3,6 @@
  */
 
 import nock from "nock";
-import NodeRSA from "node-rsa";
 import { URL } from "node:url";
 import * as SDK from ".";
 import { SAMPLE_TOKEN, TEST_BASE_URL, TEST_CUSTOM_BASE_URL, TEST_CUSTOM_ONBOARD_URL } from "../utils/test-constants";
@@ -11,7 +10,8 @@ import { ServerError, TypeValidationError } from "./errors";
 import { ReadSessionResponse } from "./read-session";
 import { ContractDetails } from "./types/common";
 import { sign } from "jsonwebtoken";
-import { isDeepStrictEqual } from "node:util";
+import { isDeepStrictEqual } from "util";
+import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -25,15 +25,13 @@ const customSDK = SDK.init({
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 beforeEach(() => {
     nock.cleanAll();
 });
 
 const CONTRACT_DETAILS: ContractDetails = {
     contractId: "test-contract-id",
-    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+    privateKey: testKeyPair.privateKey,
 };
 
 describe.each<[string, ReturnType<typeof SDK.init>, string]>([
@@ -246,7 +244,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                     sub: "test-user-id",
                     consentid: "test-consent-id",
                 },
-                testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                testKeyPair.privateKey,
                 {
                     algorithm: "PS512",
                     noTimestamp: true,
@@ -281,7 +279,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                     keys: [
                         {
                             kid: "test-kid",
-                            pem: testKeyPair.exportKey("pkcs1-public"),
+                            pem: testKeyPair.publicKey,
                         },
                     ],
                 })

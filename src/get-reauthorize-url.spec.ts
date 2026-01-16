@@ -3,7 +3,6 @@
  */
 
 import nock from "nock";
-import NodeRSA from "node-rsa";
 import {
     TEST_BASE_URL,
     TEST_CUSTOM_BASE_URL,
@@ -14,6 +13,7 @@ import {
 import { TypeValidationError } from "./errors";
 import { init } from "./init";
 import { ContractDetails } from "./types/common";
+import { testKeyPair } from "../fixtures/write/example-data-pushes";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 const SDK = init({
@@ -26,8 +26,6 @@ const customSDK = init({
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 beforeEach(() => {
     nock.cleanAll();
 });
@@ -39,7 +37,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
     describe("getReauthorizeUrl", () => {
         const CONTRACT_DETAILS: ContractDetails = {
             contractId: "test-contract-id",
-            privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+            privateKey: testKeyPair.privateKey,
         };
 
         const CALLBACK_URL = "https://test.callback/";
