@@ -7,7 +7,6 @@ import { isFunction, isNonEmptyString } from "./utils/basic-utils";
 import { CAFileListEntry, CAFileListResponse, LibrarySyncStatus } from "./types/api/ca-file-list-response";
 import get from "lodash.get";
 import { sleep } from "./utils/sleep";
-import NodeRSA from "node-rsa";
 import { readFile, ReadFileResponse } from "./read-file";
 import { readFileList } from "./read-file-list";
 import { SDKConfiguration } from "./types/sdk-configuration";
@@ -15,7 +14,7 @@ import { UserAccessToken } from "./types/user-access-token";
 
 export interface ReadAllFilesOptions {
     sessionKey: string;
-    privateKey: NodeRSA.Key;
+    privateKey: string;
     contractId: string;
     userAccessToken: UserAccessToken;
     onFileData: FileSuccessHandler;

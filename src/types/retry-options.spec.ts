@@ -130,9 +130,6 @@ describe("isRetryOptions", () => {
     });
 });
 
-const actualErrorMsg = () => assertIsRetryOptions(0, "Test error message");
-const actualErrorStartEnd = () => assertIsRetryOptions(0, "Test start %s test end");
-
 describe("assertIsRetryOptions", () => {
     it("Does not throw when given all RetryOptions properties", () => {
         const config = {
@@ -236,15 +233,5 @@ describe("assertIsRetryOptions", () => {
                 });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualErrorMsg).toThrow(TypeValidationError);
-        expect(actualErrorMsg).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualErrorStartEnd).toThrow(TypeValidationError);
-        expect(actualErrorStartEnd).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

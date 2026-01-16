@@ -3,12 +3,12 @@
  */
 
 import nock from "nock";
-import NodeRSA from "node-rsa";
 import * as SDK from ".";
 import { SAMPLE_TOKEN, TEST_CUSTOM_BASE_URL, TEST_CUSTOM_ONBOARD_URL } from "../utils/test-constants";
 import { ContractDetails } from "./types/common";
 import { FailableJunkStream, createTestServer, fileContentToCAFormat, loadScopeDefinitions } from "../utils/test-utils";
 import { Readable } from "node:stream";
+import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 const customSDK = SDK.init({
     applicationId: "test-application-id",
@@ -19,15 +19,13 @@ const customSDK = SDK.init({
     },
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 beforeEach(() => {
     nock.cleanAll();
 });
 
 const CONTRACT_DETAILS: ContractDetails = {
     contractId: "test-contract-id",
-    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+    privateKey: testKeyPair.privateKey,
 };
 
 describe.each<[string, ReturnType<typeof SDK.init>, string]>([["Custom SDK", customSDK, TEST_CUSTOM_BASE_URL]])(
@@ -44,7 +42,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([["Custom SDK", cus
                     new URL(baseUrl).origin
                 );
 
-                const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair);
+                const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
 
                 const responseStream = failedOnce
                     ? Readable.from(

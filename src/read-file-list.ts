@@ -3,7 +3,6 @@
  */
 
 import { sign } from "jsonwebtoken";
-import NodeRSA from "node-rsa";
 import { getRandomAlphaNumeric } from "./crypto";
 import { net } from "./net";
 import { assertIsCAFileListResponse, CAFileListResponse } from "./types/api/ca-file-list-response";
@@ -15,7 +14,7 @@ import { ContractDetails } from "./types/common";
 interface ReadFileListOptions {
     sessionKey: string;
     contractId: string;
-    privateKey: NodeRSA.Key;
+    privateKey: string;
     userAccessToken: UserAccessToken;
 }
 
@@ -75,8 +74,7 @@ const readFileList = async (
         userAccessToken: props.userAccessToken,
         contractDetails: {
             contractId: props.contractId,
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
-            privateKey: props.privateKey.toString(),
+            privateKey: props.privateKey,
         },
     };
     return refreshTokenWrapper(_readFileList, formatedOptions, sdkConfiguration);

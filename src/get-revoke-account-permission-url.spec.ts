@@ -3,12 +3,12 @@
  */
 
 import nock from "nock";
-import NodeRSA from "node-rsa";
 import { URL } from "node:url";
 import * as SDK from ".";
 import { SAMPLE_TOKEN, TEST_BASE_URL, TEST_CUSTOM_BASE_URL, TEST_CUSTOM_ONBOARD_URL } from "../utils/test-constants";
 import { ContractDetails } from "./types/common";
 import { getBearerTokenErrorResponse } from "../utils/test-utils";
+import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 const digime = SDK.init({
     applicationId: "test-application-id",
@@ -20,15 +20,13 @@ const customSDK = SDK.init({
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 beforeEach(() => {
     nock.cleanAll();
 });
 
 const CONTRACT_DETAILS: ContractDetails = {
     contractId: "test-contract-id",
-    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+    privateKey: testKeyPair.privateKey,
 };
 
 describe.each<[string, ReturnType<typeof SDK.init>, string]>([
@@ -42,10 +40,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
             .get(`${new URL(baseUrl).pathname}permission-access/revoke/h:accountId`)
             .times(2)
             .reply(function (_uri, _body, callback) {
-                const bearerTokenErrorResponse = getBearerTokenErrorResponse(
-                    this.req,
-                    testKeyPair.exportKey("pkcs1-public")
-                );
+                const bearerTokenErrorResponse = getBearerTokenErrorResponse(this.req, testKeyPair.publicKey);
 
                 if (bearerTokenErrorResponse) {
                     return callback(null, bearerTokenErrorResponse);

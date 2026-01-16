@@ -3,7 +3,6 @@
  */
 
 import nock from "nock";
-import NodeRSA from "node-rsa";
 import { URL } from "node:url";
 import {
     SAMPLE_TOKEN,
@@ -18,6 +17,7 @@ import { ContractDetails } from "./types/common";
 import { sign } from "jsonwebtoken";
 import { HTTPError } from "got/dist/source";
 import { GetOnboardServiceUrlResponse } from "./get-onboard-service-url";
+import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -31,8 +31,6 @@ const customSDK = init({
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 beforeEach(() => {
     nock.cleanAll();
 });
@@ -44,7 +42,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
     describe("getOnboardServiceUrl", () => {
         const CONTRACT_DETAILS: ContractDetails = {
             contractId: "test-contract-id",
-            privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+            privateKey: testKeyPair.privateKey,
         };
 
         const CALLBACK_URL = "https://test.callback/";
@@ -143,7 +141,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                     {
                         reference_code: "test-reference-code",
                     },
-                    testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    testKeyPair.privateKey,
                     {
                         algorithm: "PS512",
                         noTimestamp: true,
@@ -165,7 +163,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                         keys: [
                             {
                                 kid: "test-kid",
-                                pem: testKeyPair.exportKey("pkcs1-public"),
+                                pem: testKeyPair.publicKey,
                             },
                         ],
                     });

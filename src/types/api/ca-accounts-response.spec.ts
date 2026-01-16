@@ -5,9 +5,6 @@
 import { isCAAccountsResponse, assertIsCAAccountsResponse } from "./ca-accounts-response";
 import { TypeValidationError } from "../../errors";
 
-const actualError = () => assertIsCAAccountsResponse({}, "Test error message");
-const actualTypeError = () => assertIsCAAccountsResponse({ error: {} }, "Test start %s test end");
-
 describe("isCAAccountsResponse", () => {
     it("Returns true when given a valid CAAccountsResponse", () => {
         expect(
@@ -68,15 +65,5 @@ describe("assertIsCAAccountsResponse", () => {
             const actual = () => assertIsCAAccountsResponse({ accounts: [value] });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

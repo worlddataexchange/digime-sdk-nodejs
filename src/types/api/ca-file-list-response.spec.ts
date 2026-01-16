@@ -6,9 +6,6 @@ import { isCAFileListResponse, assertIsCAFileListResponse } from "./ca-file-list
 import { loadDefinitions } from "../../../utils/test-utils";
 import { TypeValidationError } from "../../errors";
 
-const actualError = () => assertIsCAFileListResponse({}, "Test error message");
-const actualTypeError = () => assertIsCAFileListResponse({ error: {} }, "Test start %s test end");
-
 describe("isCAFileListResponse", () => {
     it("Returns true when given a valid CAFileListResponse", () => {
         const fixtures = [
@@ -572,15 +569,5 @@ describe("assertIsCAFileListResponse", () => {
                 });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

@@ -6,7 +6,6 @@ import { TypeValidationError } from "./errors";
 import { isNonEmptyString } from "./utils/basic-utils";
 import { net } from "./net";
 import { decryptData, getRandomAlphaNumeric } from "./crypto";
-import NodeRSA from "node-rsa";
 import { assertIsDecodedCAFileHeaderResponse, MappedFileMetadata, RawFileMetadata } from "./types/api/ca-file-response";
 import * as zlib from "node:zlib";
 import { SDKConfiguration } from "./types/sdk-configuration";
@@ -17,7 +16,7 @@ import { ContractDetails } from "./types/common";
 
 export interface ReadFileOptions {
     sessionKey: string;
-    privateKey: NodeRSA.Key;
+    privateKey: string;
     fileName: string;
     contractId: string;
     userAccessToken: UserAccessToken;
@@ -50,8 +49,7 @@ const _readFile = async (options: ReadFileOptionsFormated, sdkConfig: SDKConfigu
 
     const response = await fetchFile(options, sdkConfig);
     const { compression, fileContent, fileMetadata, lastModified } = response;
-    const key: NodeRSA = new NodeRSA(privateKey, "pkcs1-private-pem");
-    let data: Buffer = decryptData(key, fileContent);
+    let data: Buffer = decryptData(privateKey, fileContent);
 
     if (compression === "brotli") {
         data = zlib.brotliDecompressSync(data);
@@ -133,8 +131,7 @@ const readFile = async (options: ReadFileOptions, sdkConfig: SDKConfiguration): 
         userAccessToken: options.userAccessToken,
         contractDetails: {
             contractId: options.contractId,
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
-            privateKey: options.privateKey.toString(),
+            privateKey: options.privateKey,
         },
     };
     return refreshTokenWrapper(_readFile, formatedOptions, sdkConfig);

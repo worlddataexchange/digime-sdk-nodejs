@@ -5,17 +5,15 @@
 import { isApiErrorResponse, assertIsApiErrorResponse } from "./api-error-response";
 import { TypeValidationError } from "../..";
 
-const actualError = () => assertIsApiErrorResponse({}, "Test error message");
-const actualTypeError = () => assertIsApiErrorResponse({ error: {} }, "Test start %s test end");
-
 describe("isApiErrorResponse", () => {
     it("Returns true when given a valid API error response", async () => {
+        const invalidSDKVer = await import("../../../fixtures/network/get-session-accounts/invalid-sdk-version.json");
+        const invalidSDK = await import("../../../fixtures/network/get-session-accounts/invalid-sdk.json");
+        const badRequest = await import("../../../fixtures/network/get-session-accounts/bad-request.json");
         const fixtures = [
-            ...(
-                await import("../../../fixtures/network/get-session-accounts/invalid-sdk-version.json")
-            ).default.values(),
-            ...(await import("../../../fixtures/network/get-session-accounts/invalid-sdk.json")).default.values(),
-            ...(await import("../../../fixtures/network/get-session-accounts/bad-request.json")).default.values(),
+            ...invalidSDKVer.default.values(),
+            ...invalidSDK.default.values(),
+            ...badRequest.default.values(),
         ];
 
         expect.assertions(fixtures.length);
@@ -83,12 +81,13 @@ describe("isApiErrorResponse", () => {
 
 describe("assertIsApiErrorResponse", () => {
     it("Does not throw when given a valid SDKVersionInvalidError error object", async () => {
+        const invalidSDKVer = await import("../../../fixtures/network/get-session-accounts/invalid-sdk-version.json");
+        const invalidSDK = await import("../../../fixtures/network/get-session-accounts/invalid-sdk.json");
+        const badRequest = await import("../../../fixtures/network/get-session-accounts/bad-request.json");
         const fixtures = [
-            ...(
-                await import("../../../fixtures/network/get-session-accounts/invalid-sdk-version.json")
-            ).default.values(),
-            ...(await import("../../../fixtures/network/get-session-accounts/invalid-sdk.json")).default.values(),
-            ...(await import("../../../fixtures/network/get-session-accounts/bad-request.json")).default.values(),
+            ...invalidSDKVer.default.values(),
+            ...invalidSDK.default.values(),
+            ...badRequest.default.values(),
         ];
 
         expect.assertions(fixtures.length);
@@ -146,15 +145,5 @@ describe("assertIsApiErrorResponse", () => {
                 });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

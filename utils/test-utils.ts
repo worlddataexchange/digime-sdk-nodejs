@@ -3,11 +3,10 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import crypto from "node:crypto";
+import crypto, { publicEncrypt, KeyLike } from "node:crypto";
 import get from "lodash.get";
 import nock from "nock";
 import type { Interceptor, ReplyHeaders } from "nock";
-import NodeRSA from "node-rsa";
 import { gzipSync, brotliCompressSync } from "node:zlib";
 import type { ClientRequest } from "node:http";
 import { verify } from "jsonwebtoken";
@@ -21,7 +20,7 @@ interface CreateCADataOptions {
 }
 
 // Creates CA-like data string
-const createCAData = (key: NodeRSA, inputData: string, options?: CreateCADataOptions): Buffer => {
+const createCAData = (key: KeyLike, inputData: string, options?: CreateCADataOptions): Buffer => {
     const { compression, corruptLength }: Required<CreateCADataOptions> = {
         compression: "no-compression",
         corruptLength: false,
@@ -47,7 +46,14 @@ const createCAData = (key: NodeRSA, inputData: string, options?: CreateCADataOpt
     const cipher: crypto.Cipheriv = crypto.createCipheriv("aes-256-cbc", dsk, div);
     const encryptedData: Buffer = Buffer.concat([cipher.update(data), cipher.final()]);
 
-    const output: Buffer = Buffer.concat([key.encrypt(dsk), div, encryptedData]);
+    const encryptedDsk = publicEncrypt(
+        {
+            key: key,
+        },
+        dsk
+    );
+
+    const output: Buffer = Buffer.concat([encryptedDsk, div, encryptedData]);
 
     // Appending some data to corrupt the output
     if (corruptLength) {
@@ -114,7 +120,7 @@ interface FileContentToCAFormatOptions {
 // Takes definitions of CA file responses and converts fileContent properties to the CA format
 const fileContentToCAFormat = (
     definitions: NockDefinitionWithHeader[],
-    key: NodeRSA,
+    key: KeyLike,
     { corruptLength = false, overrideCompression }: FileContentToCAFormatOptions = {}
 ): NockDefinitionWithHeader[] =>
     // eslint-disable-next-line unicorn/no-array-reduce

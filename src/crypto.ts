@@ -2,8 +2,7 @@
  * © World Data Exchange. All rights reserved.
  */
 
-import crypto from "node:crypto";
-import NodeRSA from "node-rsa";
+import { privateDecrypt, createDecipheriv, randomInt, createHash, createPrivateKey } from "node:crypto";
 import { FileDecryptionError } from "./errors";
 import stream from "node:stream";
 import { CipherTransform } from "./cipher-transform";
@@ -25,18 +24,19 @@ const isValidSize = (data: Buffer): boolean => {
     return bytes >= 288 && bytes % 16 === 0;
 };
 
-const decryptData = (key: NodeRSA, file: Buffer): Buffer => {
+const decryptData = (key: Parameters<typeof createPrivateKey>[0], file: Buffer): Buffer => {
     // Verify file data is of correct length
     if (!isValidSize(file)) {
         throw new FileDecryptionError(`File size not valid: ${String(file.length)}`);
     }
 
     // Recover DSK and DIV
-    const dsk: Buffer = key.decrypt(file.subarray(...BYTES.DSK));
-    const div: Buffer = file.subarray(...BYTES.DIV);
+    const dsk = privateDecrypt(createPrivateKey(key), file.subarray(...BYTES.DSK));
+
+    const div = file.subarray(...BYTES.DIV);
 
     // Recover concated hash and data
-    const decipher = crypto.createDecipheriv("aes-256-cbc", dsk, div);
+    const decipher = createDecipheriv("aes-256-cbc", dsk, div);
     const data = Buffer.concat([decipher.update(file.subarray(...BYTES.DATA)), decipher.final()]);
 
     return data;
@@ -59,13 +59,12 @@ const getRandomAlphaNumeric = (size: number): string => {
     let string = "";
     for (let i = 0; i < size; i++) {
         // Pick a random character from ALPHA_NUMERIC
-        // Using the ! postfix, as we're generating random ints that fall in the range of ALPHA_NUMERIC
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        string += ALPHA_NUMERIC.at(crypto.randomInt(ALPHA_NUMERIC.length))!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- Using the ! postfix, as we're generating random ints that fall in the range of ALPHA_NUMERIC
+        string += ALPHA_NUMERIC.at(randomInt(ALPHA_NUMERIC.length))!;
     }
     return string;
 };
 
-const hashSha256 = (data: string | Buffer): Buffer => crypto.createHash("sha256").update(data).digest();
+const hashSha256 = (data: string | Buffer): Buffer => createHash("sha256").update(data).digest();
 
 export { decryptData, getRandomAlphaNumeric, hashSha256, createEncryptStream, createDecryptStream, isValidSize };
