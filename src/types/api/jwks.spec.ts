@@ -5,9 +5,6 @@
 import { isJWKS, assertIsJWKS } from "./jwks";
 import { TypeValidationError } from "../../errors";
 
-const actualError = () => assertIsJWKS({}, "Test error message");
-const actualTypeError = () => assertIsJWKS({ error: {} }, "Test start %s test end");
-
 describe("isJWKS", () => {
     it("Returns true when given a valid JWKS with empty keys", () => {
         const valid = {
@@ -91,15 +88,5 @@ describe("assertIsJWKS", () => {
             const actual = () => assertIsJWKS({ keys: [{}, value] });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

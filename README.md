@@ -20,7 +20,7 @@ This SDK is a server side Node library that allows seamless authentication with 
 
 ### Development
 
-- Node 20.0 or above
+- Node 22.0 or above
 - (Optional, if using TypeScript) TypeScript 5.0 or above
 
 ## Installation

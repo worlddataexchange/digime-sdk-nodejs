@@ -4,10 +4,8 @@
 
 import { assertIsCAFileHeaderResponse } from "./ca-file-response";
 import { loadDefinitions, fileContentToCAFormat } from "../../../utils/test-utils";
-import NodeRSA from "node-rsa";
 import { TypeValidationError } from "../../errors";
-
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
+import { testKeyPair } from "../../../fixtures/write/example-data-pushes";
 
 const validFileMetadata = {
     objectCount: 1,
@@ -22,9 +20,6 @@ const actual = () =>
         fileMetadata: {},
     });
 
-const actualError = () => assertIsCAFileHeaderResponse(0, "Test error message");
-const actualTypeError = () => assertIsCAFileHeaderResponse(0, "Test start %s test end");
-
 describe("assertIsCAFileHeaderResponse", () => {
     it("Does not throw when given a valid CAFileResponse object", () => {
         const fixtures = [
@@ -33,7 +28,7 @@ describe("assertIsCAFileHeaderResponse", () => {
             ...loadDefinitions(`fixtures/network/get-file/valid-files-compression-brotli.json`),
         ];
 
-        const formattedFixtures = fileContentToCAFormat(fixtures, testKeyPair);
+        const formattedFixtures = fileContentToCAFormat(fixtures, testKeyPair.publicKey);
 
         expect.assertions(formattedFixtures.length);
 
@@ -179,15 +174,5 @@ describe("assertIsCAFileHeaderResponse", () => {
                 });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

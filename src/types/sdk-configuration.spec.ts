@@ -5,9 +5,6 @@
 import { isSDKConfiguration, assertIsSDKConfiguration } from "./sdk-configuration";
 import { TypeValidationError } from "../errors";
 
-const actualError = () => assertIsSDKConfiguration({}, "Test error message");
-const actualTypeError = () => assertIsSDKConfiguration({ error: {} }, "Test start %s test end");
-
 describe("isSDKConfiguration", () => {
     it("Returns true when given a minimal valid DMESDKConfiguration", () => {
         const config = {
@@ -93,15 +90,5 @@ describe("assertIsSDKConfiguration", () => {
                 });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

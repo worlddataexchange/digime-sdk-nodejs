@@ -8,11 +8,11 @@ import { ServerError, TypeValidationError } from "./errors";
 import {
     defaultValidDataPush,
     invalidFileMeta,
+    testKeyPair,
     validFileMeta,
     validFileMetaStream,
 } from "../fixtures/write/example-data-pushes";
 import { TEST_BASE_URL, TEST_CUSTOM_BASE_URL, TEST_CUSTOM_ONBOARD_URL } from "../utils/test-constants";
-import NodeRSA from "node-rsa";
 import { ContractDetails } from "./types/common";
 import { URL } from "node:url";
 import { sign } from "jsonwebtoken";
@@ -30,11 +30,9 @@ const customSDK = SDK.init({
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
 
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
-
 const CONTRACT_DETAILS: ContractDetails = {
     contractId: "test-contract-id",
-    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+    privateKey: testKeyPair.privateKey,
 };
 
 beforeEach(() => {
@@ -192,7 +190,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         sub: "test-user-id",
                         consentid: "test-consent-id",
                     },
-                    testKeyPair.exportKey("pkcs1-private-pem"),
+                    testKeyPair.privateKey,
                     {
                         algorithm: "PS512",
                         noTimestamp: true,
@@ -216,7 +214,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         keys: [
                             {
                                 kid: "test-kid",
-                                pem: testKeyPair.exportKey("pkcs1-public"),
+                                pem: testKeyPair.publicKey,
                             },
                         ],
                     });

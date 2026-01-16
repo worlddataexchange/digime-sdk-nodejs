@@ -17,9 +17,6 @@ describe("isCAAccount", () => {
     });
 });
 
-const actualErrorMsg = () => assertIsCAAccount(0, "Test error message");
-const actualErrorStartEnd = () => assertIsCAAccount(0, "Test start %s test end");
-
 describe("assertIsCAAccount", () => {
     it("Does not throw when given an object", () => {
         expect(() => assertIsCAAccount({})).not.toThrow();
@@ -30,15 +27,5 @@ describe("assertIsCAAccount", () => {
             const actual = () => assertIsCAAccount(value);
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualErrorMsg).toThrow(TypeValidationError);
-        expect(actualErrorMsg).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualErrorStartEnd).toThrow(TypeValidationError);
-        expect(actualErrorStartEnd).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

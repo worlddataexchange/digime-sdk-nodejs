@@ -10,7 +10,7 @@ import headers from "eslint-plugin-headers";
 
 export default [
     {
-        ignores: ["**/coverage", "**/dist", "**/docs"],
+        ignores: ["**/coverage", "**/dist", "**/docs", "**/documents"],
     },
     js.configs.recommended,
     ...tseslint.configs.strictTypeChecked,
@@ -38,34 +38,11 @@ export default [
                 },
             ],
             "@typescript-eslint/no-unsafe-assignment": "off",
-            "@typescript-eslint/explicit-function-return-type": "off",
             "@typescript-eslint/no-confusing-void-expression": "off",
             "@typescript-eslint/no-unnecessary-type-conversion": "off",
-            "@typescript-eslint/no-empty-interface": [
-                "error",
-                {
-                    allowSingleExtends: true,
-                },
-            ],
-            "@typescript-eslint/ban-ts-comment": [
-                "error",
-                {
-                    "ts-expect-error": "allow-with-description",
-                },
-            ],
-            "@typescript-eslint/no-unused-vars": [
-                "error",
-                {
-                    varsIgnorePattern: "^_",
-                    argsIgnorePattern: "^_",
-                },
-            ],
             "unicorn/prevent-abbreviations": "off",
-            "unicorn/filename-case": "off",
             "unicorn/no-null": "off",
-            "unicorn/prefer-ternary": "off",
-            "unicorn/prefer-global-this": "off",
-            "unicorn/no-await-expression-member": "off",
+            "unicorn/prefer-node-protocol": "off",
             "prettier/prettier": "warn",
         },
     },

@@ -3,16 +3,17 @@
  */
 
 import get from "lodash.get";
-import { isPlainObject } from "./utils/basic-utils";
 import nock from "nock";
-import NodeRSA from "node-rsa";
-// eslint-disable-next-line unicorn/import-style, unicorn/prefer-node-protocol
+// eslint-disable-next-line unicorn/import-style
 import { basename } from "path";
 import { URL } from "node:url";
 import * as SDK from ".";
 import { fileContentToCAFormat, loadScopeDefinitions } from "../utils/test-utils";
 import { TypeValidationError } from "./errors";
 import { SAMPLE_TOKEN, TEST_BASE_URL, TEST_CUSTOM_BASE_URL, TEST_CUSTOM_ONBOARD_URL } from "../utils/test-constants";
+import { testKeyPair, wrongTestKeyPair } from "../fixtures/write/example-data-pushes";
+import { KeyLike } from "node:crypto";
+import { isPlainObject } from "./utils/basic-utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -27,8 +28,6 @@ const customSDK = SDK.init({
     baseUrl: TEST_CUSTOM_BASE_URL,
     onboardUrl: TEST_CUSTOM_ONBOARD_URL,
 });
-
-const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
 
 beforeEach(() => {
     nock.cleanAll();
@@ -50,7 +49,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
 
             const { stopPolling, filePromise } = sdk.readAllFiles({
                 sessionKey: "test-session-key",
-                privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                privateKey: testKeyPair.privateKey,
                 contractId: "test-contract-id",
                 userAccessToken: SAMPLE_TOKEN,
                 onFileData: () => null,
@@ -78,7 +77,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
 
                 const { filePromise } = sdk.readAllFiles({
                     sessionKey: "test-session-key",
-                    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    privateKey: testKeyPair.privateKey,
                     contractId: "test-contract-id",
                     userAccessToken: SAMPLE_TOKEN,
                     onFileData: () => null,
@@ -111,7 +110,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
 
             const { filePromise } = sdk.readAllFiles({
                 sessionKey: "test-session-key",
-                privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                privateKey: testKeyPair.privateKey,
                 contractId: "test-contract-id",
                 userAccessToken: SAMPLE_TOKEN,
                 onFileData: () => null,
@@ -167,14 +166,14 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
 
                     const fileDefs = loadScopeDefinitions(`fixtures/network/get-file/${file}`, new URL(baseUrl).origin);
 
-                    const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair);
+                    const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
 
                     nock.define(caFormatted);
                     const successCallback = jest.fn();
 
                     const { filePromise } = sdk.readAllFiles({
                         sessionKey: "test-session-key",
-                        privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                        privateKey: testKeyPair.privateKey,
                         contractId: "test-contract-id",
                         userAccessToken: SAMPLE_TOKEN,
                         onFileData: successCallback,
@@ -247,13 +246,13 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                 new URL(baseUrl).origin
             );
 
-            const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair);
+            const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
             nock.define(caFormatted);
             const onFileData = jest.fn();
 
             const { filePromise } = sdk.readAllFiles({
                 sessionKey: "test-session-key",
-                privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                privateKey: testKeyPair.privateKey,
                 contractId: "test-contract-id",
                 userAccessToken: SAMPLE_TOKEN,
                 onFileData,
@@ -311,14 +310,14 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                 new URL(baseUrl).origin
             );
 
-            const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair);
+            const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
             const scopes = nock.define(caFormatted);
             scopes.map((scope) => scope.persist(true));
             const onFileData = jest.fn();
 
             const { filePromise } = sdk.readAllFiles({
                 sessionKey: "test-session-key",
-                privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                privateKey: testKeyPair.privateKey,
                 contractId: "test-contract-id",
                 userAccessToken: SAMPLE_TOKEN,
                 onFileData,
@@ -355,13 +354,13 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                 new URL(baseUrl).origin
             );
 
-            const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair);
+            const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
             nock.define(caFormatted);
             const onFileData = jest.fn();
 
             const { filePromise, stopPolling } = sdk.readAllFiles({
                 sessionKey: "test-session-key",
-                privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                privateKey: testKeyPair.privateKey,
                 contractId: "test-contract-id",
                 userAccessToken: SAMPLE_TOKEN,
                 onFileData,
@@ -382,7 +381,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                     expect(() =>
                         sdk.readAllFiles({
                             sessionKey,
-                            privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                            privateKey: testKeyPair.privateKey,
                             contractId: "test-contract-id",
                             userAccessToken: SAMPLE_TOKEN,
                             onFileData: () => null,
@@ -394,21 +393,28 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
         });
 
         describe("Triggers onFileError correctly", () => {
-            it.each<[string, string, string, NodeRSA, boolean, boolean]>([
+            it.each<[string, string, string, KeyLike, boolean, boolean]>([
                 [
                     "Error",
                     "brotli decompression fails",
                     "valid-files-compression-brotli.json",
-                    testKeyPair,
+                    testKeyPair.publicKey,
                     false,
                     false,
                 ],
-                ["Error", "gzip decompression fails", "valid-files-compression-gzip.json", testKeyPair, false, false],
+                [
+                    "Error",
+                    "gzip decompression fails",
+                    "valid-files-compression-gzip.json",
+                    testKeyPair.publicKey,
+                    false,
+                    false,
+                ],
                 [
                     "Error",
                     "decryption fails due to wrong key",
                     "valid-files.json",
-                    new NodeRSA({ b: 2048 }),
+                    wrongTestKeyPair.publicKey,
                     false,
                     false,
                 ],
@@ -416,7 +422,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                     "FileDecryptionError",
                     "the data length validation fails",
                     "valid-files.json",
-                    testKeyPair,
+                    testKeyPair.publicKey,
                     true,
                     false,
                 ],
@@ -472,7 +478,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
 
                 const { filePromise } = sdk.readAllFiles({
                     sessionKey: "test-session-key",
-                    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+                    privateKey: testKeyPair.privateKey,
                     contractId: "test-contract-id",
                     userAccessToken: SAMPLE_TOKEN,
                     onFileData: () => null,

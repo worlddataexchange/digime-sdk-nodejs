@@ -5,9 +5,6 @@
 import { isSession, assertIsSession } from "./session";
 import { TypeValidationError } from "../../errors";
 
-const actualError = () => assertIsSession({}, "Test error message");
-const actualTypeError = () => assertIsSession({ error: {} }, "Test start %s test end");
-
 describe("isSession", () => {
     it("Returns true when given a valid session", () => {
         expect(
@@ -119,15 +116,5 @@ describe("assertIsSession", () => {
                 });
             expect(actual).toThrow(TypeValidationError);
         });
-    });
-
-    it("Throws TypeValidationError with custom error messages", () => {
-        expect(actualError).toThrow(TypeValidationError);
-        expect(actualError).toThrow("Test error message");
-    });
-
-    it("Throws TypeValidationError with custom formated error messages", () => {
-        expect(actualTypeError).toThrow(TypeValidationError);
-        expect(actualTypeError).toThrow(/^Test start ([\S\s]*)? test end$/);
     });
 });

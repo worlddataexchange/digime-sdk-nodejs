@@ -2,17 +2,39 @@
  * © World Data Exchange. All rights reserved.
  */
 
-import NodeRSA from "node-rsa";
+import { generateKeyPairSync } from "node:crypto";
 import fs from "node:fs";
 import { PushDataOptions } from "../../src/push";
 import { ContractDetails } from "../../src/types/common";
 import { SAMPLE_TOKEN } from "../../utils/test-constants";
 
-export const testKeyPair: NodeRSA = new NodeRSA({ b: 2048 });
+export const testKeyPair = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: {
+        type: "pkcs1",
+        format: "pem",
+    },
+    privateKeyEncoding: {
+        type: "pkcs1",
+        format: "pem",
+    },
+});
+
+export const wrongTestKeyPair = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+    publicKeyEncoding: {
+        type: "pkcs1",
+        format: "pem",
+    },
+    privateKeyEncoding: {
+        type: "pkcs1",
+        format: "pem",
+    },
+});
 
 const CONTRACT_DETAILS: ContractDetails = {
     contractId: "test-contract-id",
-    privateKey: testKeyPair.exportKey("pkcs1-private-pem").toString(),
+    privateKey: testKeyPair.privateKey,
 };
 
 export const defaultValidDataPush: PushDataOptions = {
