@@ -303,8 +303,39 @@ export const SourcesScopeCodec: t.Type<SourcesScope> = t.partial({
     organizationType: OrganizationTypeCodec,
 });
 
-export type Ontology = { name: "me.digi"; version: "v1" } | { name: "fhir"; version: "stu3" };
+export const AvailableSchemas = {
+    FHIR: "fhir",
+    ME_DIGI: "me.digi",
+} as const;
 
+export type Schemas = (typeof AvailableSchemas)[keyof typeof AvailableSchemas];
+
+export const SchemasCodec: t.Type<Schemas> = t.keyof({
+    fhir: null,
+    "me.digi": null,
+});
+
+export type Ontology =
+    | { name: typeof AvailableSchemas.ME_DIGI; version: "v1" | "V1" }
+    | { name: typeof AvailableSchemas.FHIR; version: "stu3" | "STU3" }
+    | { name: typeof AvailableSchemas.FHIR; version: "r4" | "R4" };
+
+export const MeDigiV1 = t.type({
+    name: t.literal("me.digi"),
+    version: t.union([t.literal("v1"), t.literal("V1")]),
+});
+
+export const FhirStu3 = t.type({
+    name: t.literal("fhir"),
+    version: t.union([t.literal("stu3"), t.literal("STU3")]),
+});
+
+export const FhirR4 = t.type({
+    name: t.literal("fhir"),
+    version: t.union([t.literal("r4"), t.literal("R4")]),
+});
+
+export const OntologyCodec = t.union([MeDigiV1, FhirStu3, FhirR4]);
 export interface OntologyWrapper {
     ontology: Ontology;
 }
