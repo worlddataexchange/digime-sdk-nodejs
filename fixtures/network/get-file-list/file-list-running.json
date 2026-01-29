@@ -17,17 +17,17 @@
                 {
                     "name": "file1.json",
                     "updatedDate": 1568716294874,
-                    "schema": { "standard": "digime", "version": "1.0.0" }
+                    "schema": { "standard": "me.digi", "version": "1.0.0" }
                 },
                 {
                     "name": "file2.json",
                     "updatedDate": 1568716294874,
-                    "schema": { "standard": "digime", "version": "1.0.0" }
+                    "schema": { "standard": "me.digi", "version": "1.0.0" }
                 },
                 {
                     "name": "file3.json",
                     "updatedDate": 1568716294874,
-                    "schema": { "standard": "digime", "version": "1.0.0" }
+                    "schema": { "standard": "me.digi", "version": "1.0.0" }
                 }
             ]
         }
@@ -50,17 +50,17 @@
                 {
                     "name": "file1.json",
                     "updatedDate": 1568716294874,
-                    "schema": { "standard": "digime", "version": "1.0.0" }
+                    "schema": { "standard": "me.digi", "version": "1.0.0" }
                 },
                 {
                     "name": "file2.json",
                     "updatedDate": 1568716294874,
-                    "schema": { "standard": "digime", "version": "1.0.0" }
+                    "schema": { "standard": "me.digi", "version": "1.0.0" }
                 },
                 {
                     "name": "file3.json",
                     "updatedDate": 1568716294874,
-                    "schema": { "standard": "digime", "version": "1.0.0" }
+                    "schema": { "standard": "me.digi", "version": "1.0.0" }
                 }
             ]
         }

@@ -130,17 +130,17 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         {
                             name: "file1.json",
                             updatedDate: 1_568_716_294_874,
-                            schema: { standard: "digime", version: "1.0.0" },
+                            schema: { standard: "me.digi", version: "1.0.0" },
                         },
                         {
                             name: "file2.json",
                             updatedDate: 1_568_716_294_874,
-                            schema: { standard: "digime", version: "1.0.0" },
+                            schema: { standard: "me.digi", version: "1.0.0" },
                         },
                         {
                             name: "file3.json",
                             updatedDate: 1_568_716_294_874,
-                            schema: { standard: "digime", version: "1.0.0" },
+                            schema: { standard: "me.digi", version: "1.0.0" },
                         },
                     ];
 
@@ -220,17 +220,17 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         {
                             name: "file1.json",
                             updatedDate: 1_568_716_294_874,
-                            schema: { standard: "digime", version: "1.0.0" },
+                            schema: { standard: "me.digi", version: "1.0.0" },
                         },
                         {
                             name: "file2.json",
                             updatedDate: 1_568_716_294_874,
-                            schema: { standard: "digime", version: "1.0.0" },
+                            schema: { standard: "me.digi", version: "1.0.0" },
                         },
                         {
                             name: "file3.json",
                             updatedDate: 1_568_716_294_874,
-                            schema: { standard: "digime", version: "1.0.0" },
+                            schema: { standard: "me.digi", version: "1.0.0" },
                         },
                     ],
                 })
@@ -277,9 +277,9 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         state: "running",
                     },
                     fileList: [
-                        { name: "file1.json", updatedDate: 10, schema: { standard: "digime", version: "1.0.0" } },
-                        { name: "file2.json", updatedDate: 10, schema: { standard: "digime", version: "1.0.0" } },
-                        { name: "file3.json", updatedDate: 10, schema: { standard: "digime", version: "1.0.0" } },
+                        { name: "file1.json", updatedDate: 10, schema: { standard: "me.digi", version: "1.0.0" } },
+                        { name: "file2.json", updatedDate: 10, schema: { standard: "me.digi", version: "1.0.0" } },
+                        { name: "file3.json", updatedDate: 10, schema: { standard: "me.digi", version: "1.0.0" } },
                     ],
                 })
                 .get(`${new URL(baseUrl).pathname}permission-access/query/test-session-key`)
@@ -293,9 +293,9 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         state: "running",
                     },
                     fileList: [
-                        { name: "file1.json", updatedDate: 20, schema: { standard: "digime", version: "1.0.0" } },
-                        { name: "file2.json", updatedDate: 20, schema: { standard: "digime", version: "1.0.0" } },
-                        { name: "file3.json", updatedDate: 20, schema: { standard: "digime", version: "1.0.0" } },
+                        { name: "file1.json", updatedDate: 20, schema: { standard: "me.digi", version: "1.0.0" } },
+                        { name: "file2.json", updatedDate: 20, schema: { standard: "me.digi", version: "1.0.0" } },
+                        { name: "file3.json", updatedDate: 20, schema: { standard: "me.digi", version: "1.0.0" } },
                     ],
                 })
                 .get(`${new URL(baseUrl).pathname}permission-access/query/test-session-key`)
