@@ -6,7 +6,7 @@ import { handleServerResponse, net } from "./net";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
 import { SDKConfiguration } from "./types/sdk-configuration";
-import { ContractDetails, ContractDetailsCodec } from "./types/common";
+import { ContractDetails, ContractDetailsCodec, Ontology, OntologyCodec } from "./types/common";
 import * as t from "io-ts";
 import { TypeValidationError } from "./errors";
 import { CodecAssertion, codecAssertion } from "./utils/codec-assertion";
@@ -24,11 +24,13 @@ export const ServiceSampleDataSetsOptionsOptionsCodec: t.Type<GetServiceSampleDa
 type DataSet = {
     description: string;
     name: string;
+    ontology: Ontology[];
 };
 
-const DataSetCodec = t.type({
+const DataSetCodec: t.Type<DataSet> = t.type({
     description: t.string,
     name: t.string,
+    ontology: t.array(OntologyCodec),
 });
 
 export type GetServiceSampleDataSetsResponse = {
