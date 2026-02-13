@@ -136,7 +136,7 @@ export const ContractDetailsRawCodec: t.Type<ContractDetails> = t.type({
     privateKey: t.string,
 });
 
-export const ContractDetailsCodec = new t.Type<ContractDetails, ContractDetails, unknown>(
+export const ContractDetailsCodec = new t.Type<ContractDetails, ContractDetails>(
     "ContractDetails",
     (input: unknown): input is ContractDetails => isValidContractDetails(input),
     // `t.success` and `t.failure` are helpers used to build `Either` instances

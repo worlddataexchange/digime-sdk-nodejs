@@ -58,6 +58,58 @@ export interface SourcesJSON extends Record<string, unknown> {
     authorisation?: SourceAuthorisation;
 }
 
+export type SourceScope = "data" | "auth";
+
+export type SourceSeverity = "partial" | "full";
+
+export interface SourceStatus {
+    severity: SourceSeverity;
+    scopes: SourceScope[];
+    expectedWindow?: {
+        from?: number;
+        to?: number;
+    };
+    observedWindow?: {
+        from?: number;
+        to?: number;
+    };
+}
+
+export interface SourceProxy {
+    status?: SourceStatus;
+    name?: string;
+}
+
+const SourceScopeCodec = t.union([t.literal("data"), t.literal("auth")]);
+
+const ExpectedWindowCodec = t.partial({
+    from: t.number,
+    to: t.number,
+});
+
+const ObservedWindowCodec = t.partial({
+    from: t.number,
+    to: t.number,
+});
+
+const SourceSeverityCodec = t.union([t.literal("partial"), t.literal("full")]);
+
+const SourceStatusCodec: t.Type<SourceStatus> = t.intersection([
+    t.type({
+        severity: SourceSeverityCodec,
+        scopes: t.array(SourceScopeCodec),
+    }),
+    t.partial({
+        expectedWindow: ExpectedWindowCodec,
+        observedWindow: ObservedWindowCodec,
+    }),
+]);
+
+export const SourceProxyCodec: t.Type<SourceProxy> = t.partial({
+    status: SourceStatusCodec,
+    name: t.string,
+});
+
 export interface Source extends Record<string, unknown> {
     id: number;
     name?: string;
@@ -65,6 +117,8 @@ export interface Source extends Record<string, unknown> {
     service?: SourceService;
     publishedStatus?: PublishedStatus;
     json?: SourcesJSON;
+    status?: SourceStatus;
+    sourceProxy?: SourceProxy | null;
 }
 
 const SourceCodec: t.Type<Source> = t.intersection([
@@ -83,6 +137,8 @@ const SourceCodec: t.Type<Source> = t.intersection([
             t.literal("sampledataonly"),
         ]),
         json: SourcesJSONCodec,
+        status: SourceStatusCodec,
+        sourceProxy: t.union([SourceProxyCodec, t.null]),
     }),
 ]);
 
@@ -231,7 +287,10 @@ export type IncludeFieldList =
     | "type.id"
     | "type.name"
     | "type.reference"
-    | "json";
+    | "json"
+    | "sourceProxy.status"
+    | "sourceProxy.name"
+    | "status";
 
 export interface SourcesBodyParams extends Record<string, unknown> {
     limit?: number;
