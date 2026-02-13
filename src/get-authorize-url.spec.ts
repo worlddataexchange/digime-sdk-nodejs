@@ -400,7 +400,7 @@ describe.each<[string, ReturnType<typeof init>, string, string]>([
                 response = await sdk.getAuthorizeUrl({
                     contractDetails: CONTRACT_DETAILS,
                     callback: CALLBACK_URL,
-                    sessionOptions: actionsToSend as any,
+                    sessionOptions: actionsToSend,
                     state: "test-state",
                 });
             });

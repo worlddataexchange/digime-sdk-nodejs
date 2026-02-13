@@ -306,7 +306,7 @@ export interface DownloadStorageFileOptions {
     path: string;
 }
 
-const ReadableStreamCodec = new t.Type<ReadableStream, ReadableStream, unknown>(
+const ReadableStreamCodec = new t.Type<ReadableStream, ReadableStream>(
     "ReadableStream",
     (input: unknown): input is ReadableStream => input instanceof ReadableStream,
     // `t.success` and `t.failure` are helpers used to build `Either` instances
@@ -503,7 +503,7 @@ export interface UploadFileToStorageResponse {
     statusMessage?: string;
 }
 
-const buffer = new t.Type<Buffer, Buffer, unknown>(
+const buffer = new t.Type<Buffer, Buffer>(
     "Buffer",
     (input: unknown): input is Buffer => Buffer.isBuffer(input),
     // `t.success` and `t.failure` are helpers used to build `Either` instances
@@ -513,7 +513,7 @@ const buffer = new t.Type<Buffer, Buffer, unknown>(
     t.identity
 );
 
-const readableStream = new t.Type<Readable, Readable, unknown>(
+const readableStream = new t.Type<Readable, Readable>(
     "Readable",
     (input: unknown): input is Readable => input instanceof Readable,
     // `t.success` and `t.failure` are helpers used to build `Either` instances
