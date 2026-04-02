@@ -34,8 +34,8 @@ export const handleServerResponse = (error: unknown): void => {
         return;
     }
 
-    let code: string | undefined = undefined;
-    let message: string | undefined = undefined;
+    let code: string | undefined;
+    let message: string | undefined;
     let statusCode: number | undefined = undefined;
     let statusMessage: string | undefined = undefined;
     let reference: string | undefined = undefined;
