@@ -127,9 +127,7 @@ const AccountSyncStatusEntryCompletedCodec: t.Type<AccountSyncStatusEntryComplet
 });
 
 type AccountSyncStatusEntry =
-    | AccountSyncStatusEntryPartial
-    | AccountSyncStatusEntryRunning
-    | AccountSyncStatusEntryCompleted;
+    AccountSyncStatusEntryPartial | AccountSyncStatusEntryRunning | AccountSyncStatusEntryCompleted;
 
 const AccountSyncStatusEntryCodec: t.Type<AccountSyncStatusEntry> = t.union([
     AccountSyncStatusEntryPartialCodec,

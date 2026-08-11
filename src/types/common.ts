@@ -353,5 +353,4 @@ export interface Consumer {
 type PrimitiveTypes = string | number | bigint | boolean | symbol | null | undefined;
 
 export type LiteralUnion<LiteralType, BaseType extends PrimitiveTypes> =
-    | LiteralType
-    | (BaseType & Record<never, never>);
+    LiteralType | (BaseType & Record<never, never>);
