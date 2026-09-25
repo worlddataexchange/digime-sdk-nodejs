@@ -11,7 +11,7 @@ import * as t from "io-ts";
 import { getRandomAlphaNumeric, hashSha256 } from "./crypto";
 import { sign } from "jsonwebtoken";
 import { handleServerResponse, net } from "./net";
-import get from "lodash.get";
+import { getValueByPath } from "./utils/basic-utils";
 import { SDKConfiguration } from "./types/sdk-configuration";
 import {
     Consumer,
@@ -162,7 +162,7 @@ const getAuthorizeUrl = async (
     const { serviceId, sourceType, sampleData, locale, includeSampleDataOnlySources, triggerQuery, sourcesScope } =
         props;
 
-    let storageRef = undefined;
+    let storageRef;
     if (props.storageId) {
         storageRef = await _storageReference(props, sdkConfig);
     }
@@ -186,7 +186,7 @@ const getAuthorizeUrl = async (
     }).toString();
 
     return {
-        url: result.toString(),
+        url: result.href,
         codeVerifier,
         session,
     };
@@ -250,13 +250,13 @@ const _authorize = async (
             },
         });
 
-        const payload = await getPayloadFromToken(get(body, "token"), sdkConfig);
+        const payload = await getPayloadFromToken(getValueByPath(body, "token") as string | undefined, sdkConfig);
 
-        const session = get(body, "session", {} as AuthorizeResponse["session"]);
+        const session = getValueByPath(body, "session", {} as AuthorizeResponse["session"]);
 
         return {
             codeVerifier,
-            code: String(get(payload, ["preauthorization_code"])),
+            code: String(getValueByPath(payload, ["preauthorization_code"])),
             session,
         };
     } catch (error) {
@@ -294,7 +294,7 @@ const _storageReference = async (
             responseType: "json",
         });
 
-        const ref = get(body, "id", {} as string);
+        const ref = getValueByPath(body, "id", {} as string);
 
         return ref;
     } catch (error) {

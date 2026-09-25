@@ -2,23 +2,23 @@
  * © World Data Exchange. All rights reserved.
  */
 
-import get from "lodash.get";
+import { getValueByPath } from "./basic-utils";
 import { UserAccessToken } from "../types/user-access-token";
 
 const formatToken = (token: unknown): UserAccessToken => {
     return {
         accessToken: {
-            value: get(token, ["access_token", "value"], ""),
-            expiry: get(token, ["access_token", "expires_on"], 0),
+            value: getValueByPath(token, ["access_token", "value"], ""),
+            expiry: getValueByPath(token, ["access_token", "expires_on"], 0),
         },
         refreshToken: {
-            value: get(token, ["refresh_token", "value"], ""),
-            expiry: get(token, ["refresh_token", "expires_on"], 0),
+            value: getValueByPath(token, ["refresh_token", "value"], ""),
+            expiry: getValueByPath(token, ["refresh_token", "expires_on"], 0),
         },
         user: {
-            id: get(token, ["sub"]),
+            id: getValueByPath(token, ["sub"]) as string | undefined,
         },
-        consentid: get(token, ["consentid"]),
+        consentid: getValueByPath(token, ["consentid"]) as string | undefined,
     };
 };
 
