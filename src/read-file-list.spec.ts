@@ -34,7 +34,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
     ["Custom SDK", customSDK, TEST_CUSTOM_BASE_URL],
 ])("%s", (_title, sdk, baseUrl) => {
     it("retries on statusCode 500", async () => {
-        let failedOnce = false;
+        let isFailedOnce = false;
 
         const sessionKey = "test-session-key";
 
@@ -48,8 +48,8 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                     return callback(null, bearerTokenErrorResponse);
                 }
 
-                if (!failedOnce) {
-                    failedOnce = true;
+                if (!isFailedOnce) {
+                    isFailedOnce = true;
                     return callback(null, [500]);
                 }
 

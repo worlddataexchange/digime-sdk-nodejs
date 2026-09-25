@@ -5,7 +5,6 @@
 import { TypeValidationError } from "./errors";
 import { isFunction, isNonEmptyString } from "./utils/basic-utils";
 import { CAFileListEntry, CAFileListResponse, LibrarySyncStatus } from "./types/api/ca-file-list-response";
-import get from "lodash.get";
 import { sleep } from "./utils/sleep";
 import { readFile, ReadFileResponse } from "./read-file";
 import { readFileList } from "./read-file-list";
@@ -45,7 +44,7 @@ const readAllFiles = (options: ReadAllFilesOptions, sdkConfig: SDKConfiguration)
         throw new TypeValidationError("Parameter sessionKey should be a non empty string");
     }
 
-    let allowPollingToContinue = true;
+    let isAllowPollingToContinue = true;
 
     // eslint-disable-next-line no-async-promise-executor, @typescript-eslint/no-misused-promises
     const allFilesPromise: Promise<CAFileListResponse["status"]> = new Promise(async (resolve, reject) => {
@@ -55,7 +54,7 @@ const readAllFiles = (options: ReadAllFilesOptions, sdkConfig: SDKConfiguration)
         let status: CAFileListResponse["status"];
 
         try {
-            while (allowPollingToContinue && state !== "partial" && state !== "completed") {
+            while (isAllowPollingToContinue && state !== "partial" && state !== "completed") {
                 const readFileResponse = await readFileList(
                     { sessionKey, contractId, privateKey, userAccessToken },
                     sdkConfig
@@ -88,7 +87,7 @@ const readAllFiles = (options: ReadAllFilesOptions, sdkConfig: SDKConfiguration)
                 const newFiles: string[] = (fileList || []).reduce((accumulator: string[], file) => {
                     const { name, updatedDate } = file;
 
-                    if (get(handledFiles, name, 0) < updatedDate) {
+                    if ((handledFiles[name] ?? 0) < updatedDate) {
                         accumulator.push(name);
                         handledFiles[name] = updatedDate;
                     }
@@ -156,7 +155,7 @@ const readAllFiles = (options: ReadAllFilesOptions, sdkConfig: SDKConfiguration)
 
     return {
         stopPolling: () => {
-            allowPollingToContinue = false;
+            isAllowPollingToContinue = false;
         },
         filePromise: allFilesPromise,
     };

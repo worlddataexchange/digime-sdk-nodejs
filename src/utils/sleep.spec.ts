@@ -13,33 +13,33 @@ describe("sleep", () => {
     });
 
     it("should resolve after the specified time", async () => {
-        const mockFn = jest.fn();
+        const mockFunction = jest.fn();
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        sleep(1000).then(mockFn);
+        sleep(1000).then(mockFunction);
 
-        expect(mockFn).not.toHaveBeenCalled();
+        expect(mockFunction).not.toHaveBeenCalled();
 
         jest.advanceTimersByTime(1000);
         await Promise.resolve();
 
-        expect(mockFn).toHaveBeenCalled();
+        expect(mockFunction).toHaveBeenCalled();
     });
 
     it("should not resolve before the specified time", async () => {
-        const mockFn = jest.fn();
+        const mockFunction = jest.fn();
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        sleep(2000).then(mockFn);
+        sleep(2000).then(mockFunction);
 
         jest.advanceTimersByTime(1000);
         await Promise.resolve();
 
-        expect(mockFn).not.toHaveBeenCalled();
+        expect(mockFunction).not.toHaveBeenCalled();
 
         jest.advanceTimersByTime(1000);
         await Promise.resolve();
 
-        expect(mockFn).toHaveBeenCalled();
+        expect(mockFunction).toHaveBeenCalled();
     });
 });

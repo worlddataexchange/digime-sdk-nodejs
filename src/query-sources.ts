@@ -121,6 +121,14 @@ export interface Source extends Record<string, unknown> {
     sourceProxy?: SourceProxy | null;
 }
 
+const SourcePublishedStatusCodec = t.union([
+    t.literal("approved"),
+    t.literal("pending"),
+    t.literal("deprecated"),
+    t.literal("blocked"),
+    t.literal("sampledataonly"),
+]);
+
 const SourceCodec: t.Type<Source> = t.intersection([
     t.type({
         id: t.number,
@@ -129,13 +137,7 @@ const SourceCodec: t.Type<Source> = t.intersection([
         name: t.string,
         resource: SourceResourceCodec,
         service: SourceServiceCodec,
-        publishedStatus: t.union([
-            t.literal("approved"),
-            t.literal("pending"),
-            t.literal("deprecated"),
-            t.literal("blocked"),
-            t.literal("sampledataonly"),
-        ]),
+        publishedStatus: SourcePublishedStatusCodec,
         json: SourcesJSONCodec,
         status: SourceStatusCodec,
         sourceProxy: t.union([SourceProxyCodec, t.null]),
@@ -222,15 +224,7 @@ export interface SourcesFilter extends Record<string, unknown> {
 
 const SourcesFilterCodec: t.Type<SourcesFilter> = t.partial({
     id: t.array(t.number),
-    publishedStatus: t.array(
-        t.union([
-            t.literal("approved"),
-            t.literal("pending"),
-            t.literal("deprecated"),
-            t.literal("blocked"),
-            t.literal("sampledataonly"),
-        ])
-    ),
+    publishedStatus: t.array(SourcePublishedStatusCodec),
     service: t.type({
         id: t.array(t.number),
     }),

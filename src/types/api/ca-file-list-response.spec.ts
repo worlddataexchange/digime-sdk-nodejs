@@ -22,8 +22,8 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when given a non-object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse(value);
-            expect(actual).toBe(false);
+            const isActual = isCAFileListResponse(value);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -41,12 +41,12 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns true when the status.state property of the CAFileListResponse object is a valid string literal", () => {
         it.each(["running", "partial", "completed", "pending"])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: value,
                 },
             });
-            expect(actual).toBe(true);
+            expect(isActual).toBe(true);
         });
     });
 
@@ -62,12 +62,12 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when the status.state property of the CAFileListResponse object is not a string", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: value,
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -84,13 +84,13 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when the status.details property of the CAFileListResponse object is not an object", () => {
         it.each([true, false, null, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                     details: value,
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -133,7 +133,7 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when the entries in status.details property of the CAFileListResponse object are not an object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                     details: {
@@ -141,7 +141,7 @@ describe("isCAFileListResponse", () => {
                     },
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -160,7 +160,7 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when the entries in status.details property of the CAFileListResponse object are not an object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                     details: {
@@ -168,13 +168,13 @@ describe("isCAFileListResponse", () => {
                     },
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the entries in status.details property of the CAFileListResponse object have a non-string state", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                     details: {
@@ -184,7 +184,7 @@ describe("isCAFileListResponse", () => {
                     },
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -216,25 +216,25 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when the fileList property of the CAFileListResponse object is not an array", () => {
         it.each([true, false, null, 0, Number.NaN, "", {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                 },
                 fileList: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the fileList property of the CAFileListResponse object is an array containing non-objects", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                 },
                 fileList: [value],
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -251,7 +251,7 @@ describe("isCAFileListResponse", () => {
 
     describe("Returns false when the fileList.name property of the CAFileListResponse object is not a string", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                 },
@@ -262,13 +262,13 @@ describe("isCAFileListResponse", () => {
                     },
                 ],
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the fileList.name property of the CAFileListResponse object is not a string", () => {
         it.each([true, false, null, undefined, [], "", {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isCAFileListResponse({
+            const isActual = isCAFileListResponse({
                 status: {
                     state: "running",
                 },
@@ -279,7 +279,7 @@ describe("isCAFileListResponse", () => {
                     },
                 ],
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 });

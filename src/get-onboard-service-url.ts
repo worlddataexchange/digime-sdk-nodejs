@@ -3,7 +3,7 @@
  */
 
 import * as t from "io-ts";
-import get from "lodash.get";
+import { getValueByPath } from "./utils/basic-utils";
 import { getRandomAlphaNumeric } from "./crypto";
 import { net } from "./net";
 import { Session } from "./types/api/session";
@@ -184,9 +184,9 @@ const _getOnboardServiceUrl = async (
         },
     });
 
-    const payload = await getPayloadFromToken(get(response.body, "token"), sdkConfig);
-    const code = get(payload, ["reference_code"]);
-    const session = get(response.body, "session", {} as GetOnboardServiceUrlResponse["session"]);
+    const payload = await getPayloadFromToken(getValueByPath(response.body, "token") as string | undefined, sdkConfig);
+    const code = getValueByPath(payload, ["reference_code"], "");
+    const session = getValueByPath(response.body, "session", {} as GetOnboardServiceUrlResponse["session"]);
 
     const result: URL = new URL(`${String(sdkConfig.onboardUrl)}onboard`);
 
@@ -207,7 +207,7 @@ const _getOnboardServiceUrl = async (
     }).toString();
 
     return {
-        url: result.toString(),
+        url: result.href,
         session,
         userAccessToken: props.userAccessToken,
     };

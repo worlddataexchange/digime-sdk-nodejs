@@ -10,7 +10,7 @@ import { ServerError, TypeValidationError } from "./errors";
 import { ReadSessionResponse } from "./read-session";
 import { ContractDetails } from "./types/common";
 import { sign } from "jsonwebtoken";
-import { isDeepStrictEqual } from "util";
+import { isDeepStrictEqual } from "node:util";
 import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

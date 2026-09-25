@@ -6,7 +6,7 @@ import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
 import { TypeValidationError } from "./errors";
 import { handleServerResponse, net } from "./net";
-import get from "lodash.get";
+import { getValueByPath } from "./utils/basic-utils";
 import { UserAccessToken } from "./types/user-access-token";
 import { getPayloadFromToken } from "./utils/get-payload-from-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
@@ -72,7 +72,10 @@ const exchangeCodeForToken = async (
             },
         });
 
-        const payload = await getPayloadFromToken(get(response.body, "token"), sdkConfig);
+        const payload = await getPayloadFromToken(
+            getValueByPath(response.body, "token") as string | undefined,
+            sdkConfig
+        );
 
         return formatToken(payload);
     } catch (error) {

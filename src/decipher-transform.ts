@@ -51,11 +51,29 @@ export class DecipherTransform extends stream.Transform {
             this.headerLayout.encryptedKey.length + this.headerLayout.initialisationVector.length;
     }
 
+    private buildDecipher({ encryptedKey, initialisationVector }: DecipherParams): crypto.Decipheriv {
+        const dataEncryptionKey = crypto.privateDecrypt(this.privateKey, encryptedKey);
+        return crypto.createDecipheriv("aes-256-cbc", dataEncryptionKey, initialisationVector);
+    }
+
+    private extractDecipherParams(headerBuffer: Buffer): DecipherParams {
+        return {
+            encryptedKey: this.extractParam("encryptedKey", headerBuffer),
+            initialisationVector: this.extractParam("initialisationVector", headerBuffer),
+        };
+    }
+
+    private extractParam(param: DecipherParam, headerBuffer: Buffer): Buffer {
+        const from = this.headerLayout[param].offset;
+        const to = from + this.headerLayout[param].length;
+        return headerBuffer.subarray(from, to);
+    }
+
     public _transform(chunk: Buffer, _encoding: string, callback: stream.TransformCallback): void {
         if (this.decipher) {
             this.push(this.decipher.update(chunk));
         } else {
-            let chunkTail: Buffer | undefined = undefined;
+            let chunkTail: Buffer | undefined;
             if (chunk.length >= this.remainingHeaderLength) {
                 this.headerChunks.push(chunk.subarray(0, this.remainingHeaderLength));
                 chunkTail = chunk.subarray(this.remainingHeaderLength);
@@ -92,23 +110,5 @@ export class DecipherTransform extends stream.Transform {
         this.decipher = undefined;
         this.headerChunks = [];
         callback(error);
-    }
-
-    private buildDecipher({ encryptedKey, initialisationVector }: DecipherParams): crypto.Decipheriv {
-        const dataEncryptionKey = crypto.privateDecrypt(this.privateKey, encryptedKey);
-        return crypto.createDecipheriv("aes-256-cbc", dataEncryptionKey, initialisationVector);
-    }
-
-    private extractDecipherParams(headerBuffer: Buffer): DecipherParams {
-        return {
-            encryptedKey: this.extractParam("encryptedKey", headerBuffer),
-            initialisationVector: this.extractParam("initialisationVector", headerBuffer),
-        };
-    }
-
-    private extractParam(param: DecipherParam, headerBuffer: Buffer): Buffer {
-        const from = this.headerLayout[param].offset;
-        const to = from + this.headerLayout[param].length;
-        return headerBuffer.subarray(from, to);
     }
 }

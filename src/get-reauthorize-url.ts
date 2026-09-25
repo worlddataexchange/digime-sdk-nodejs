@@ -3,7 +3,7 @@
  */
 
 import * as t from "io-ts";
-import get from "lodash.get";
+import { getValueByPath } from "./utils/basic-utils";
 import { handleServerResponse, net } from "./net";
 import { Session } from "./types/api/session";
 import { UserAccessToken, UserAccessTokenCodec } from "./types/user-access-token";
@@ -142,9 +142,12 @@ const getReauthorizeUrl = async (
             },
         });
 
-        const payload = await getPayloadFromToken(get(response.body, "token"), sdkConfig);
-        const code = get(payload, ["reference_code"]);
-        const session = get(response.body, "session", {} as GetReauthorizeUrlResponse["session"]);
+        const payload = await getPayloadFromToken(
+            getValueByPath(response.body, "token") as string | undefined,
+            sdkConfig
+        );
+        const code = getValueByPath(payload, ["reference_code"], "");
+        const session = getValueByPath(response.body, "session", {} as GetReauthorizeUrlResponse["session"]);
 
         const result: URL = new URL(`${String(sdkConfig.onboardUrl)}user-reauth`);
 
@@ -158,7 +161,7 @@ const getReauthorizeUrl = async (
 
         return {
             codeVerifier,
-            url: result.toString(),
+            url: result.href,
             session,
         };
     } catch (error) {

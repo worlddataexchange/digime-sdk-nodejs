@@ -4,15 +4,14 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto, { publicEncrypt, KeyLike } from "node:crypto";
-import get from "lodash.get";
 import nock from "nock";
-import type { Interceptor, ReplyHeaders } from "nock";
+import type { Interceptor } from "nock";
 import { gzipSync, brotliCompressSync } from "node:zlib";
 import type { ClientRequest } from "node:http";
 import { verify } from "jsonwebtoken";
 import http, { RequestListener } from "node:http";
 import { Readable } from "node:stream";
-import { isPlainObject } from "../src/utils/basic-utils";
+import { isPlainObject, getValueByPath } from "../src/utils/basic-utils";
 
 interface CreateCADataOptions {
     compression?: "no-compression" | "brotli" | "gzip";
@@ -56,11 +55,7 @@ const createCAData = (key: KeyLike, inputData: string, options?: CreateCADataOpt
     const output: Buffer = Buffer.concat([encryptedDsk, div, encryptedData]);
 
     // Appending some data to corrupt the output
-    if (corruptLength) {
-        return Buffer.concat([output, Buffer.from("extra")]);
-    }
-
-    return output;
+    return corruptLength ? Buffer.concat([output, Buffer.from("extra")]) : output;
 };
 
 type RequestHandler = (
@@ -95,9 +90,7 @@ const spyOnScopeRequests = (scope: nock.Scope | nock.Scope[], options?: SpyOnSco
     return requestSpy;
 };
 
-interface NockDefinitionWithHeader extends nock.Definition {
-    rawHeaders?: ReplyHeaders;
-}
+type NockDefinitionWithHeader = nock.Definition;
 
 // Wrapper around nock.loadDefs which creates definitions which ignore request bodies
 const loadDefinitions = (path: string): NockDefinitionWithHeader[] =>
@@ -133,8 +126,10 @@ const fileContentToCAFormat = (
             fileContent = JSON.stringify(fileContent);
         }
 
-        const headers = definition.rawHeaders;
-        const compression = get(headers, ["x-metadata", "compression"]);
+        // Fixtures store x-metadata as an object, so don't trust nock's header typing here
+        const headers: unknown = definition.rawHeaders;
+        const compression = getValueByPath(headers, ["x-metadata", "compression"]) as
+            CreateCADataOptions["compression"] | undefined;
 
         const def = {
             ...definition,
@@ -144,8 +139,7 @@ const fileContentToCAFormat = (
                 corruptLength,
             }),
             rawHeaders: {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                "x-metadata": parseMetaToHeader(get(headers, ["x-metadata"])),
+                "x-metadata": parseMetaToHeader(getValueByPath(headers, ["x-metadata"]) as Record<string, unknown>),
             },
         };
         return [...acc, def];
@@ -207,7 +201,7 @@ const getBearerTokenErrorResponse = (
         return [406, bodyError, headersError];
     }
 
-    const [type, token] = authorization.split(" ");
+    const [type, token] = authorization.split(" ", 2);
 
     if (!type || !token) {
         return [406, bodyError, headersError];
@@ -238,15 +232,15 @@ const getBearerTokenErrorResponse = (
                 message: `The nonce provided in JWT payload (${nonce}) has already been used`,
             };
             return [406, formatBodyError(nonceError), formatHeadersError(nonceError)];
-        } else {
-            seenNonces.add(nonce);
         }
+        seenNonces.add(nonce);
     }
     return undefined;
 };
 
 const createTestServer = async (port: number, requestListener: RequestListener) => {
     let resolve: (value?: unknown) => void;
+    // eslint-disable-next-line unicorn/prefer-promise-with-resolvers
     const serverListening = new Promise((res) => {
         resolve = res;
     });
@@ -272,11 +266,13 @@ class FailableJunkStream extends Readable {
         this.index = 0;
     }
 
+    // eslint-disable-next-line unicorn/prefer-private-class-fields -- Node's Readable requires _read()
     _read() {
         if (this.index === this.failAfter) {
             this.destroy(new Error(`Something went wrong! ${String(this.index)}`));
             return;
-        } else if (this.index <= this.chunks) {
+        }
+        if (this.index <= this.chunks) {
             const chunk = `Junk ${String(this.index++)}\n`;
             this.push(chunk);
         } else {
