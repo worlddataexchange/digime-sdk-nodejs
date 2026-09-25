@@ -44,10 +44,10 @@ describe("isRetryOptions", () => {
 
     describe("Returns true when the methods property is an array with a valid HTTP method", () => {
         it.each(VALID_HTTP_METHODS)("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 methods: [value],
             });
-            expect(actual).toBe(true);
+            expect(isActual).toBe(true);
         });
     });
 
@@ -61,71 +61,71 @@ describe("isRetryOptions", () => {
 
     describe("Returns false when given a non-object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions(value);
-            expect(actual).toBe(false);
+            const isActual = isRetryOptions(value);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the limit property of the retryOptions object is not a number", () => {
         it.each([true, false, null, [], {}, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 limit: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the methods property of the retryOptions object is not an array of strings", () => {
         it.each([true, false, null, {}, 0, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 methods: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the methods property of the retryOptions object is an array of invalid strings", () => {
         it.each([[["test"]], [["TEST"]], [["TEST", "test"]]])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 methods: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the statusCodes property of the retryOptions object is not an array of numbers", () => {
         it.each([true, false, null, {}, 0, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 statusCodes: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the errorCodes property of the retryOptions object is not an array of strings", () => {
         it.each([true, false, null, {}, 0, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 errorCodes: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the calculateDelay property of the retryOptions object is not a function", () => {
         it.each([true, false, null, {}, 0, "", [], Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 calculateDelay: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the maxRetryAfter property of the retryOptions object is not a number", () => {
         it.each([true, false, null, [], "", {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isRetryOptions({
+            const isActual = isRetryOptions({
                 maxRetryAfter: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 });

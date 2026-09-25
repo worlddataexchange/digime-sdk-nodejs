@@ -10,11 +10,7 @@ describe("isApiErrorResponse", () => {
         const invalidSDKVer = await import("../../../fixtures/network/get-session-accounts/invalid-sdk-version.json");
         const invalidSDK = await import("../../../fixtures/network/get-session-accounts/invalid-sdk.json");
         const badRequest = await import("../../../fixtures/network/get-session-accounts/bad-request.json");
-        const fixtures = [
-            ...invalidSDKVer.default.values(),
-            ...invalidSDK.default.values(),
-            ...badRequest.default.values(),
-        ];
+        const fixtures = [...invalidSDKVer.default, ...invalidSDK.default, ...badRequest.default];
 
         expect.assertions(fixtures.length);
 
@@ -25,8 +21,8 @@ describe("isApiErrorResponse", () => {
 
     describe("Returns false when given a non-object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isApiErrorResponse(value);
-            expect(actual).toBe(false);
+            const isActual = isApiErrorResponse(value);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -36,25 +32,25 @@ describe("isApiErrorResponse", () => {
 
     describe("Returns false when the code property of the error object is not a string", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isApiErrorResponse({
+            const isActual = isApiErrorResponse({
                 error: {
                     code: value,
                     message: "Test message",
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when the message property of the error object is not a string", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isApiErrorResponse({
+            const isActual = isApiErrorResponse({
                 error: {
                     code: "Test code",
                     message: value,
                 },
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -84,11 +80,7 @@ describe("assertIsApiErrorResponse", () => {
         const invalidSDKVer = await import("../../../fixtures/network/get-session-accounts/invalid-sdk-version.json");
         const invalidSDK = await import("../../../fixtures/network/get-session-accounts/invalid-sdk.json");
         const badRequest = await import("../../../fixtures/network/get-session-accounts/bad-request.json");
-        const fixtures = [
-            ...invalidSDKVer.default.values(),
-            ...invalidSDK.default.values(),
-            ...badRequest.default.values(),
-        ];
+        const fixtures = [...invalidSDKVer.default, ...invalidSDK.default, ...badRequest.default];
 
         expect.assertions(fixtures.length);
 

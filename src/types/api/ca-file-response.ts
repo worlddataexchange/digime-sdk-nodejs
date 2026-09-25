@@ -57,29 +57,29 @@ const MappedFileMetadataCodec: t.Type<MappedFileMetadata> = t.type({
     schema: FileDataSchemaCodec,
 });
 
+const RawFileAccountCodec = t.type({
+    accountid: t.string,
+});
+
+const RawFileObjectTypeCodec = t.intersection([
+    t.type({
+        name: t.string,
+    }),
+    t.partial({
+        references: t.array(t.string),
+    }),
+]);
+
 const RawFileMetadataCodec: t.Type<RawFileMetadata> = t.intersection([
     t.type({
-        accounts: t.array(
-            t.type({
-                accountid: t.string,
-            })
-        ),
+        accounts: t.array(RawFileAccountCodec),
         mimetype: t.string,
     }),
     t.partial({
         appid: t.string,
         created: t.number,
         contractid: t.string,
-        objecttypes: t.array(
-            t.intersection([
-                t.type({
-                    name: t.string,
-                }),
-                t.partial({
-                    references: t.array(t.string),
-                }),
-            ])
-        ),
+        objecttypes: t.array(RawFileObjectTypeCodec),
         partnerid: t.string,
         reference: t.array(t.string),
         servicegroups: t.array(t.number),

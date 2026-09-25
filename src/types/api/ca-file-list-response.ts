@@ -148,16 +148,18 @@ export interface CAFileListResponse {
     userAccessToken?: UserAccessToken;
 }
 
+const CAFileListStatusCodec = t.intersection([
+    t.type({
+        state: LibrarySyncStatusCodec,
+    }),
+    t.partial({
+        details: t.record(t.string, AccountSyncStatusEntryCodec),
+    }),
+]);
+
 const CAFileListResponseCodec: t.Type<CAFileListResponse> = t.intersection([
     t.type({
-        status: t.intersection([
-            t.type({
-                state: LibrarySyncStatusCodec,
-            }),
-            t.partial({
-                details: t.record(t.string, AccountSyncStatusEntryCodec),
-            }),
-        ]),
+        status: CAFileListStatusCodec,
     }),
     t.partial({
         fileList: t.array(CAFileListEntryCodec),

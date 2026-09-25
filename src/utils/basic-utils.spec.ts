@@ -12,26 +12,27 @@ import {
     isFunction,
     isString,
     isPlainObject,
+    getValueByPath,
 } from "./basic-utils";
 
 describe("isNonEmptyString: Returns false when non empty string is passed", () => {
     test.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])(
         "%p",
         (testValue: unknown) => {
-            const actual = isNonEmptyString(testValue);
+            const isActual = isNonEmptyString(testValue);
 
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         }
     );
 });
 
 describe("addTrailingSlash", () => {
     it("should return the URL with a trailing slash if it does not have one", () => {
-        expect(addTrailingSlash("http://example.com")).toBe("http://example.com/");
+        expect(addTrailingSlash("https://example.com")).toBe("https://example.com/");
     });
 
     it("should return the same URL if it already has a trailing slash", () => {
-        expect(addTrailingSlash("http://example.com/")).toBe("http://example.com/");
+        expect(addTrailingSlash("https://example.com/")).toBe("https://example.com/");
     });
 
     it("should return undefined for non-string or empty inputs", () => {
@@ -126,7 +127,7 @@ describe("isString", () => {
     test.each([
         ["regular string", "hello", true],
         ["empty string", "", true],
-        ["string via String constructor", String("test"), true],
+        ["string via String constructor", "test", true],
         ["number", 42, false],
         ["boolean", true, false],
         ["null", null, false],
@@ -136,6 +137,86 @@ describe("isString", () => {
         ["function", () => {}, false],
     ])("should return %s -> %s", (_desc, input, expected) => {
         expect(isString(input)).toBe(expected);
+    });
+});
+
+describe("getValueByPath", () => {
+    describe("real call-site shapes used across the SDK", () => {
+        it('resolves a single-segment string path (e.g. get(body, "token"))', () => {
+            expect(getValueByPath({ token: "abc" }, "token")).toBe("abc");
+        });
+
+        it('resolves a dot-separated string path (e.g. get(response, "body.session"))', () => {
+            expect(getValueByPath({ body: { session: { id: 1 } } }, "body.session")).toEqual({ id: 1 });
+        });
+
+        it('resolves a single-segment array path (e.g. get(payload, ["reference_code"]))', () => {
+            expect(getValueByPath({ reference_code: "xyz" }, ["reference_code"])).toBe("xyz");
+        });
+
+        it('resolves a two-segment array path (e.g. get(token, ["access_token", "value"]))', () => {
+            expect(getValueByPath({ access_token: { value: "v", expires_on: 123 } }, ["access_token", "value"])).toBe(
+                "v"
+            );
+        });
+
+        it("returns the provided default when an intermediate object is missing entirely", () => {
+            expect(getValueByPath({ access_token: {} }, ["access_token", "value"], "")).toBe("");
+        });
+    });
+
+    describe("default value handling", () => {
+        it("returns the default when the root object is undefined", () => {
+            expect(getValueByPath(undefined, ["a", "b"], "fallback")).toBe("fallback");
+        });
+
+        it("returns the default when the root object is null", () => {
+            expect(getValueByPath(null, "body.session", "fallback")).toBe("fallback");
+        });
+
+        it("returns the default when the key is missing", () => {
+            expect(getValueByPath({}, ["reference_code"], "")).toBe("");
+        });
+
+        it("returns undefined (not a made-up default) when no default is passed and the key is missing", () => {
+            expect(getValueByPath({}, ["sub"])).toBeUndefined();
+        });
+    });
+
+    describe("null vs undefined semantics (the easy thing to get wrong)", () => {
+        it("returns null as-is when it is the final resolved value, without substituting the default", () => {
+            expect(getValueByPath({ a: null }, ["a"], "fallback")).toBeNull();
+        });
+
+        it("returns the default when null is encountered mid-path (can't traverse further into it)", () => {
+            expect(getValueByPath({ a: null }, ["a", "b"], "fallback")).toBe("fallback");
+        });
+    });
+
+    describe("falsy-but-defined values must not be replaced by the default", () => {
+        it.each([
+            ["0", { a: { b: 0 } }, 99, 0],
+            ["false", { a: { b: false } }, true, false],
+            ['""', { a: { b: "" } }, "fallback", ""],
+        ])("preserves %s", (_desc, obj, defaultValue, expected) => {
+            expect(getValueByPath(obj, ["a", "b"], defaultValue)).toBe(expected);
+        });
+    });
+
+    describe("edge cases", () => {
+        it("allows property access on a primitive (string) value mid-path", () => {
+            expect(getValueByPath("hello", ["length"])).toBe(5);
+        });
+
+        it("resolves headers-style nested access (e.g. x-metadata.compression)", () => {
+            expect(getValueByPath({ "x-metadata": { compression: "gzip" } }, ["x-metadata", "compression"])).toBe(
+                "gzip"
+            );
+        });
+
+        it("returns undefined for a missing nested header key with no default", () => {
+            expect(getValueByPath({}, ["x-metadata", "compression"])).toBeUndefined();
+        });
     });
 });
 

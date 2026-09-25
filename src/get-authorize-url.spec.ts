@@ -16,7 +16,7 @@ import { ContractDetails } from "./types/common";
 import { GetAuthorizeUrlResponse } from "./get-authorize-url";
 import { sign } from "jsonwebtoken";
 import { HTTPError } from "got/dist/source";
-import { isDeepStrictEqual } from "util";
+import { isDeepStrictEqual } from "node:util";
 import { testKeyPair } from "../fixtures/write/example-data-pushes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

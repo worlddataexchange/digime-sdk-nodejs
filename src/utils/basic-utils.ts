@@ -2,6 +2,23 @@
  * © World Data Exchange. All rights reserved.
  */
 
+// NOTE: only supports plain dot-separated string paths (e.g. "a.b"), not bracket/array-index
+export function getValueByPath<T>(obj: unknown, path: string | Array<string | number>, defaultValue: T): T;
+export function getValueByPath(obj: unknown, path: string | Array<string | number>): unknown;
+export function getValueByPath(obj: unknown, path: string | Array<string | number>, defaultValue?: unknown): unknown {
+    const keys = Array.isArray(path) ? path : path.split(".");
+    let current: unknown = obj;
+
+    for (const key of keys) {
+        if (current === null || current === undefined) {
+            return defaultValue;
+        }
+        current = (current as Record<string | number, unknown>)[key];
+    }
+
+    return current === undefined ? defaultValue : current;
+}
+
 export const isString = (value: unknown): value is string => {
     return typeof value === "string";
 };

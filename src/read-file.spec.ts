@@ -34,7 +34,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([["Custom SDK", cus
         it("retries when request is aborted", async () => {
             expect.assertions(1);
 
-            let failedOnce = false;
+            let isFailedOnce = false;
 
             const server = await createTestServer(3999, (_req, res) => {
                 const fileDefs = loadScopeDefinitions(
@@ -44,13 +44,13 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([["Custom SDK", cus
 
                 const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
 
-                const responseStream = failedOnce
+                const responseStream = isFailedOnce
                     ? Readable.from(
                           caFormatted[0]?.response instanceof Buffer ? caFormatted[0].response : Buffer.from("test")
                       )
                     : new FailableJunkStream(10, 5);
-                if (!failedOnce) {
-                    failedOnce = true;
+                if (!isFailedOnce) {
+                    isFailedOnce = true;
                 }
                 res.setHeader("Content-Type", "application/octet-stream");
                 res.setHeader("x-metadata", (caFormatted[0]?.rawHeaders as Record<string, string>)["x-metadata"] || "");

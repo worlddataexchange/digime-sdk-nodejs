@@ -24,8 +24,8 @@ describe("isJWKS", () => {
 
     describe("Returns false when given a non-object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isJWKS(value);
-            expect(actual).toBe(false);
+            const isActual = isJWKS(value);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -35,15 +35,15 @@ describe("isJWKS", () => {
 
     describe("Returns false when keys is not an array", () => {
         it.each([true, false, null, undefined, 0, Number.NaN, {}, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isJWKS({ keys: value });
-            expect(actual).toBe(false);
+            const isActual = isJWKS({ keys: value });
+            expect(isActual).toBe(false);
         });
     });
 
     describe("Returns false when keys array contains non-object entities", () => {
         it.each([true, false, null, undefined, 0, Number.NaN, [], "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isJWKS({ keys: [{}, value] });
-            expect(actual).toBe(false);
+            const isActual = isJWKS({ keys: [{}, value] });
+            expect(isActual).toBe(false);
         });
     });
 });
