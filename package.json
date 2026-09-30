@@ -47,7 +47,7 @@
         "typedoc": "~0.28.20",
         "typedoc-plugin-missing-exports": "~4.1.4",
         "typescript": "~6.0.3",
-        "typescript-eslint": "~8.70.1"
+        "typescript-eslint": "~8.71.0"
     },
     "dependencies": {
         "fp-ts": "~2.16.11",
