@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "module": "commonjs",
         "allowJs": true,
         "declaration": true,
@@ -22,6 +22,7 @@
         "pretty": true,
 
         "lib": ["ESNext"],
+        "types": ["node", "jest"],
         "noEmit": true
     },
     "include": ["src/**/*", "utils/**/*", "tools/**/*", "eslint.config.mjs"],

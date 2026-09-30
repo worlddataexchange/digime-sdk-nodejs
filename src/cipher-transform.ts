@@ -9,8 +9,8 @@ export class CipherTransform extends stream.Transform {
     private cipher: crypto.Cipheriv;
     private chunksToPrepend: Buffer[] = [];
 
-    constructor(privateKey: string, opts?: stream.TransformOptions) {
-        super(opts);
+    constructor(privateKey: string, options?: stream.TransformOptions) {
+        super(options);
         const dataEncryptionKey = crypto.randomBytes(32);
         const initialisationVector = crypto.randomBytes(16);
         const encryptedKey = crypto.publicEncrypt(privateKey, dataEncryptionKey);

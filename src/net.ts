@@ -36,9 +36,9 @@ export const handleServerResponse = (error: unknown): void => {
 
     let code: string | undefined;
     let message: string | undefined;
-    let statusCode: number | undefined = undefined;
-    let statusMessage: string | undefined = undefined;
-    let reference: string | undefined = undefined;
+    let statusCode: number | undefined;
+    let statusMessage: string | undefined;
+    let reference: string | undefined;
 
     if (isString(body.error) || isString(body.message)) {
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -74,6 +74,7 @@ export const handleServerResponse = (error: unknown): void => {
     });
 };
 
+// eslint-disable-next-line unicorn/consistent-boolean-name
 export const shouldThrowError = (error: unknown): void => {
     if (!(error instanceof HTTPError)) {
         throw error;
@@ -86,8 +87,10 @@ export const shouldThrowError = (error: unknown): void => {
 
     const body: unknown = error.response.body;
 
-    if (isApiErrorResponse(body) && body.error.code !== "InvalidToken") {
-        handleServerResponse(error);
-        throw error;
+    if (!isApiErrorResponse(body) || body.error.code === "InvalidToken") {
+        return;
     }
+
+    handleServerResponse(error);
+    throw error;
 };

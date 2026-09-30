@@ -34,8 +34,8 @@ describe("isSDKConfiguration", () => {
 
     describe("Returns false when given a non-object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isSDKConfiguration(value);
-            expect(actual).toBe(false);
+            const isActual = isSDKConfiguration(value);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -45,10 +45,10 @@ describe("isSDKConfiguration", () => {
 
     describe("Returns false when the baseUrl property is not a string", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isSDKConfiguration({
+            const isActual = isSDKConfiguration({
                 baseUrl: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 });

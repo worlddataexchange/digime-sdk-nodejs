@@ -53,25 +53,21 @@ const DiscoveryResourceCodec: t.Type<DiscoveryResource> = t.intersection([
     }),
 ]);
 
+const DiscoveryIdRefCodec = t.strict({
+    id: t.number,
+});
+
 export const DiscoveryServiceCodec: t.Type<DiscoveryService> = t.intersection([
     t.type({
         id: t.number,
         name: t.string,
-        serviceGroups: t.array(
-            t.strict({
-                id: t.number,
-            })
-        ),
+        serviceGroups: t.array(DiscoveryIdRefCodec),
         publishedStatus: t.string,
         publishedDate: t.number,
         resources: t.array(DiscoveryResourceCodec),
     }),
     t.partial({
-        countries: t.array(
-            t.strict({
-                id: t.number,
-            })
-        ),
+        countries: t.array(DiscoveryIdRefCodec),
     }),
 ]);
 

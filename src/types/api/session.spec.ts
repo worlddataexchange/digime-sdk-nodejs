@@ -17,8 +17,8 @@ describe("isSession", () => {
 
     describe("Returns false when given a non-object", () => {
         it.each([true, false, null, undefined, [], 0, Number.NaN, "", () => null, Symbol("test")])("%p", (value) => {
-            const actual = isSession(value);
-            expect(actual).toBe(false);
+            const isActual = isSession(value);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -28,11 +28,11 @@ describe("isSession", () => {
 
     describe("Returns false when expiry is not a number", () => {
         it.each([true, false, null, undefined, [], {}, "", () => null, Symbol("test")])("%p", (value: unknown) => {
-            const actual = isSession({
+            const isActual = isSession({
                 expiry: value,
                 key: "test-session-key",
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 
@@ -40,23 +40,23 @@ describe("isSession", () => {
         it.each([true, false, null, Number.NaN, undefined, [], {}, () => null, Symbol("test")])(
             "%p",
             (value: unknown) => {
-                const actual = isSession({
+                const isActual = isSession({
                     expiry: 0,
                     key: value,
                 });
-                expect(actual).toBe(false);
+                expect(isActual).toBe(false);
             }
         );
     });
 
     describe("Returns false when sessionExchangeToken is not a string", () => {
         it.each([true, false, null, Number.NaN, undefined, [], {}, () => null, Symbol("test")])("%p", (value) => {
-            const actual = isSession({
+            const isActual = isSession({
                 expiry: 0,
                 sessionKey: "test-session-key",
                 sessionExchangeToken: value,
             });
-            expect(actual).toBe(false);
+            expect(isActual).toBe(false);
         });
     });
 });

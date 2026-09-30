@@ -2,10 +2,9 @@
  * © World Data Exchange. All rights reserved.
  */
 
-import get from "lodash.get";
 import nock from "nock";
 // eslint-disable-next-line unicorn/import-style
-import { basename } from "path";
+import { basename } from "node:path";
 import { URL } from "node:url";
 import * as SDK from ".";
 import { fileContentToCAFormat, loadScopeDefinitions } from "../utils/test-utils";
@@ -13,7 +12,7 @@ import { TypeValidationError } from "./errors";
 import { SAMPLE_TOKEN, TEST_BASE_URL, TEST_CUSTOM_BASE_URL, TEST_CUSTOM_ONBOARD_URL } from "../utils/test-constants";
 import { testKeyPair, wrongTestKeyPair } from "../fixtures/write/example-data-pushes";
 import { KeyLike } from "node:crypto";
-import { isPlainObject } from "./utils/basic-utils";
+import { isPlainObject, getValueByPath } from "./utils/basic-utils";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -185,8 +184,8 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                     expect(successCallback).toHaveBeenCalledTimes(fileDefs.length);
 
                     for (const fileDef of fileDefs) {
-                        const xMetaData = get(fileDef, ["rawHeaders", "x-metadata"]);
-                        const { metadata } = xMetaData;
+                        const rawHeaders: unknown = fileDef.rawHeaders;
+                        const metadata: unknown = getValueByPath(rawHeaders, ["x-metadata", "metadata"]);
                         const response: any = isPlainObject(fileDef.response)
                             ? JSON.stringify(fileDef.response)
                             : fileDef.response;
@@ -194,6 +193,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
                         expect(successCallback).toHaveBeenCalledWith(
                             expect.objectContaining({
                                 fileData: Buffer.from(response),
+                                // eslint-disable-next-line unicorn/max-nested-calls
                                 fileName: basename(fileDef.path.toString()),
                                 fileList,
                                 fileMetadata: metadata,
@@ -312,6 +312,7 @@ describe.each<[string, ReturnType<typeof SDK.init>, string]>([
 
             const caFormatted = fileContentToCAFormat(fileDefs, testKeyPair.publicKey);
             const scopes = nock.define(caFormatted);
+            // eslint-disable-next-line unicorn/no-unused-builtin-method-return
             scopes.map((scope) => scope.persist(true));
             const onFileData = jest.fn();
 

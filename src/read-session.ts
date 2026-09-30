@@ -5,7 +5,7 @@
 import { net } from "./net";
 import { sign } from "jsonwebtoken";
 import { getRandomAlphaNumeric } from "./crypto";
-import get from "lodash.get";
+import { getValueByPath } from "./utils/basic-utils";
 import { assertIsSession, Session } from "./types/api/session";
 import { UserAccessToken, UserAccessTokenCodec } from "./types/user-access-token";
 import { SDKConfiguration } from "./types/sdk-configuration";
@@ -96,7 +96,7 @@ const _readSession = async (options: ReadSessionOptions, sdkConfig: SDKConfigura
         },
     });
 
-    const session: unknown = get(response, "body.session");
+    const session: unknown = getValueByPath(response, "body.session");
     assertIsSession(session);
 
     return {

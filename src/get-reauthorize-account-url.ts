@@ -3,7 +3,7 @@
  */
 
 import * as t from "io-ts";
-import get from "lodash.get";
+import { getValueByPath } from "./utils/basic-utils";
 import { getRandomAlphaNumeric } from "./crypto";
 import { handleServerResponse, net } from "./net";
 import { Session } from "./types/api/session";
@@ -103,7 +103,7 @@ const _accountReference = async (
             },
         });
 
-        const ref = get(body, "id", {} as string);
+        const ref = getValueByPath(body, "id", {} as string);
 
         return ref;
     } catch (error) {
@@ -167,9 +167,9 @@ const _getReauthorizeAccountUrl = async (
         },
     });
 
-    const payload = await getPayloadFromToken(get(response.body, "token"), sdkConfig);
-    const code = get(payload, ["reference_code"]);
-    const session = get(response.body, "session", {} as GetReauthorizeAccountUrlResponse["session"]);
+    const payload = await getPayloadFromToken(getValueByPath(response.body, "token") as string | undefined, sdkConfig);
+    const code = getValueByPath(payload, ["reference_code"], "");
+    const session = getValueByPath(response.body, "session", {} as GetReauthorizeAccountUrlResponse["session"]);
 
     const accountRef = await _accountReference(props, sdkConfig);
 
@@ -181,7 +181,7 @@ const _getReauthorizeAccountUrl = async (
     }).toString();
 
     return {
-        url: result.toString(),
+        url: result.href,
         session,
         userAccessToken: props.userAccessToken,
     };

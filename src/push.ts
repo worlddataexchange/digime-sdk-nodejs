@@ -62,8 +62,6 @@ export const PushProviderOptionsCodec: t.Type<PushDataToProviderOptions> = t.typ
 const pushData = async (options: PushDataOptions, sdkConfig: SDKConfiguration): Promise<void> => {
     const { type, contractDetails, userAccessToken, onAccessTokenChange } = options;
 
-    let pushResponse;
-
     if (!ContractDetailsCodec.is(contractDetails)) {
         throw new TypeValidationError("Contract Details failed type validation.");
     }
@@ -71,6 +69,8 @@ const pushData = async (options: PushDataOptions, sdkConfig: SDKConfiguration): 
     if (!UserAccessTokenCodec.is(userAccessToken)) {
         throw new TypeValidationError("User access token failed type validation.");
     }
+
+    let pushResponse;
     if (type === "library") {
         if (!PushLibraryOptionsCodec.is(options)) {
             throw new TypeValidationError("Push to library type validation failed.");
@@ -117,7 +117,7 @@ const _pushToLibrary = async (
 
     const requestPath = new URL("permission-access/import", sdkConfig.baseUrl);
 
-    await net.post(requestPath.toString(), {
+    await net.post(requestPath.href, {
         headers: {
             "Content-Type": "application/octet-stream",
             FileDescriptor: fileDescriptor,
@@ -177,7 +177,7 @@ const _pushToProvider = async (
 
     const requestPath = new URL(`permission-access/import/h:accountId/${standard}/${version}`, sdkConfig.baseUrl);
 
-    await net.post(requestPath.toString(), {
+    await net.post(requestPath.href, {
         headers: {
             "Content-Type": "application/json",
             accountId,

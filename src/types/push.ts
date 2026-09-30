@@ -39,23 +39,27 @@ const readableStream = new t.Type<Readable, Readable>(
     t.identity
 );
 
+export const PushedFileAccountCodec = t.type({
+    accountId: t.string,
+});
+
+export const PushedFileDescriptorCodec = t.intersection([
+    t.type({
+        mimeType: t.string,
+        accounts: t.array(PushedFileAccountCodec),
+    }),
+    t.partial({
+        reference: t.array(t.string),
+        tags: t.array(t.string),
+    }),
+]);
+
+export type PushedFileDescriptor = t.TypeOf<typeof PushedFileDescriptorCodec>;
+
 export const PushedFileMetaCodec: t.Type<PushedFileMeta> = t.type({
     fileData: t.union([readableStream, buffer]),
     fileName: t.string,
-    fileDescriptor: t.intersection([
-        t.type({
-            mimeType: t.string,
-            accounts: t.array(
-                t.type({
-                    accountId: t.string,
-                })
-            ),
-        }),
-        t.partial({
-            reference: t.array(t.string),
-            tags: t.array(t.string),
-        }),
-    ]),
+    fileDescriptor: PushedFileDescriptorCodec,
 });
 
 export const isPushedFileMeta = PushedFileMetaCodec.is;
